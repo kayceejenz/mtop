@@ -16,7 +16,6 @@ class FarcasterService {
     try {
       await sdk.actions.ready();
       this.isInitialized = true;
-      console.log(sdk);
       console.log("Farcaster SDK initialized successfully");
     } catch (error) {
       console.error("Failed to initialize Farcaster SDK:", error);
@@ -26,18 +25,8 @@ class FarcasterService {
   }
 
   async getUser(): Promise<FarcasterUser | null> {
-    if (!this.isInitialized) {
-      return {
-        fid: 12345,
-        username: "testuser",
-        displayName: "Test User",
-        pfpUrl: "https://via.placeholder.com/100x100/6366f1/ffffff?text=TU",
-      };
-    }
-
     try {
       const context = await sdk.context;
-      console.log(context);
 
       if (context.user) {
         return {
@@ -49,7 +38,6 @@ class FarcasterService {
       }
       return null;
     } catch (error) {
-      console.error("Failed to get Farcaster user:", error);
       return null;
     }
   }
