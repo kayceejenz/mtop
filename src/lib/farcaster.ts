@@ -16,6 +16,7 @@ class FarcasterService {
     try {
       await sdk.actions.ready();
       this.isInitialized = true;
+      console.log(sdk);
       console.log("Farcaster SDK initialized successfully");
     } catch (error) {
       console.error("Failed to initialize Farcaster SDK:", error);
