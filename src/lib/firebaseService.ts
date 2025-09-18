@@ -319,8 +319,40 @@ class FirebaseService {
     await this.updateUserPads(userId, amount);
   }
 
-  async rewardSharing(userId: string): Promise<void> {
-    await this.updateUserPads(userId, 2); // +2 pads for sharing
+  async getUserSharesToday(userId: string): Promise<number> {
+    const startOfDay = new Date();
+    startOfDay.setHours(0, 0, 0, 0);
+
+    const endOfDay = new Date();
+    endOfDay.setHours(23, 59, 59, 999);
+
+    const q = query(
+      collection(db, "shares"),
+      where("userId", "==", userId),
+      where("createdAt", ">=", Timestamp.fromDate(startOfDay)),
+      where("createdAt", "<=", Timestamp.fromDate(endOfDay))
+    );
+
+    const querySnapshot = await getDocs(q);
+    return querySnapshot.size;
+  }
+
+  async rewardSharing(userId: string): Promise<boolean> {
+    try {
+      // Reward pads
+      await this.updateUserPads(userId, 0.5);
+
+      // Log the share action
+      await addDoc(collection(db, "shares"), {
+        userId,
+        createdAt: serverTimestamp(),
+      });
+
+      return true;
+    } catch (err) {
+      console.error("Failed to reward sharing:", err);
+      return false;
+    }
   }
 }
 

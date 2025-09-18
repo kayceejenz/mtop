@@ -289,10 +289,74 @@ export default function Index() {
     if (!user) return;
 
     try {
-      await firebaseService.rewardSharing(user.id);
-      await handleRefresh();
+      // Check current shares before attempting to reward
+      const sharesToday = await firebaseService.getUserSharesToday(user.id);
+      const remaining = 2 - sharesToday;
+
+      if (remaining > 0) {
+        // User can still share, attempt to reward
+        const success = await firebaseService.rewardSharing(user.id);
+
+        if (success) {
+          await handleRefresh();
+
+          // Calculate new remaining shares
+          const newRemaining = remaining - 1;
+
+          if (newRemaining > 0) {
+            // Show success message with remaining shares
+            setBuyPadsStatus("success");
+            setBuyPadsError(
+              `Share reward earned! You can share ${newRemaining} more time${
+                newRemaining === 1 ? "" : "s"
+              } today.`
+            );
+          } else {
+            // This was the last share
+            setBuyPadsStatus("success");
+            setBuyPadsError(
+              "Share reward earned! You've reached the daily sharing limit (2/2)."
+            );
+          }
+
+          // Auto-hide success message
+          setTimeout(() => {
+            setBuyPadsStatus("idle");
+            setBuyPadsError(null);
+          }, 3000);
+        } else {
+          // Reward failed (shouldn't happen if remaining > 0)
+          setBuyPadsError(
+            "Failed to process sharing reward. Please try again."
+          );
+          setBuyPadsStatus("error");
+
+          setTimeout(() => {
+            setBuyPadsStatus("idle");
+            setBuyPadsError(null);
+          }, 3000);
+        }
+      } else {
+        // User has already shared twice today
+        setBuyPadsError(
+          "You've already shared twice today. Sharing limit resets tomorrow."
+        );
+        setBuyPadsStatus("error");
+
+        setTimeout(() => {
+          setBuyPadsStatus("idle");
+          setBuyPadsError(null);
+        }, 3000);
+      }
     } catch (error) {
-      console.error("Failed to reward sharing:", error);
+      console.error("Failed to process sharing reward:", error);
+      setBuyPadsError("Failed to process sharing reward. Please try again.");
+      setBuyPadsStatus("error");
+
+      setTimeout(() => {
+        setBuyPadsStatus("idle");
+        setBuyPadsError(null);
+      }, 3000);
     }
   };
 
