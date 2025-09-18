@@ -5,6 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Heart, MessageCircle, Share2, Trophy, Coins } from "lucide-react";
 import { Meme, User, firebaseService } from "@/lib/firebaseService";
 
+const voteWeight = 3;
 interface MemeCardProps {
   meme: Meme;
   currentUser: User;
@@ -59,6 +60,7 @@ export default function MemeCard({
     setIsVoting(true);
 
     try {
+      await firebaseService.updateUserPads(currentUser.id, voteWeight);
       const success = await firebaseService.voteMeme(meme.id, currentUser.id);
 
       if (success) {
@@ -149,12 +151,10 @@ export default function MemeCard({
                 <span className="font-medium">{meme.creator.username}</span>
                 <span>•</span>
                 <span>
-                  {meme.createdAt
-                    ?.toDate()
-                    .toLocaleTimeString([], {
-                      hour: "2-digit",
-                      minute: "2-digit",
-                    })}
+                  {meme.createdAt?.toDate().toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit",
+                  })}
                 </span>
               </div>
             </div>
