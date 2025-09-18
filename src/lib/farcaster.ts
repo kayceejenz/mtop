@@ -1,5 +1,4 @@
 import { sdk } from "@farcaster/miniapp-sdk";
-import { useSendTransaction, useWaitForTransactionReceipt } from "wagmi";
 import { encodeFunctionData, parseUnits } from "viem";
 import { erc20Abi } from "viem";
 
@@ -7,12 +6,17 @@ const CENTRAL_WALLET_ADDRESS = import.meta.env.VITE_CENTRAL_WALLET_ADDRESS;
 const USDC_CONTRACT = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
 const USDC_DECIMALS = 6;
 
-const { sendTransaction, data: hash, isPending } = useSendTransaction();
 export interface FarcasterUser {
   fid: number;
   username: string;
   displayName: string;
   pfpUrl: string;
+}
+
+export interface TransactionParams {
+  to: `0x${string}`;
+  data: `0x${string}`;
+  value?: `0x${string}`;
 }
 
 class FarcasterService {
@@ -36,54 +40,34 @@ class FarcasterService {
     return sdk;
   }
 
-  async buyPadsWithUSDC(amount: number) {
+  /**
+   * Prepares USDC transfer transaction parameters for Wagmi
+   * This function creates the transaction data but doesn't send it
+   * The actual sending should be done using Wagmi's useSendTransaction hook
+   */
+  preparePadsPurchaseTransaction(amount: number): TransactionParams {
     const PRICE_PER_PAD = 0.5; // $0.50 per pad
-    const amountPerPad = amount * PRICE_PER_PAD; // e.g. amount * 0.5
-    const cost = (amountPerPad * Math.pow(10, USDC_DECIMALS)).toString();
+    const totalCost = amount * PRICE_PER_PAD; // e.g. 10 * 0.5 = 5.0 USDC
 
-    const sdk = farcasterService.getSDK();
-    const wallet = sdk.wallet;
-
-    if (!wallet) {
-      console.error("Wallet not available");
-      alert("Please connect your wallet first.");
-      return;
+    if (!CENTRAL_WALLET_ADDRESS) {
+      throw new Error("Central wallet address not configured");
     }
 
-    try {
-      sdk.haptics.impactOccurred("medium");
+    // Convert to proper units (USDC has 6 decimals)
+    const costInUnits = parseUnits(totalCost.toString(), USDC_DECIMALS);
 
-      const costInUnits = parseUnits(cost, 6);
+    // Encode the transfer function call
+    const data = encodeFunctionData({
+      abi: erc20Abi,
+      functionName: "transfer",
+      args: [CENTRAL_WALLET_ADDRESS as `0x${string}`, costInUnits],
+    });
 
-      // Encode the transfer call
-      const data = encodeFunctionData({
-        abi: erc20Abi,
-        functionName: "transfer",
-        args: [CENTRAL_WALLET_ADDRESS, costInUnits],
-      });
-
-      sendTransaction({
-        to: USDC_CONTRACT,
-        data,
-      });
-
-      sdk.haptics.notificationOccurred("success");
-
-      // Maybe show UI feedback
-      alert(`Transaction submitted! You bought ${amount} pad(s).`);
-
-      return hash;
-    } catch (err: any) {
-      console.error("Error buying pads with USDC:", err);
-
-      // Trigger error haptics
-      sdk.haptics.notificationOccurred("error");
-
-      // Show error to user
-      alert("Transaction failed: " + (err.message ?? err));
-
-      throw err;
-    }
+    return {
+      to: USDC_CONTRACT as `0x${string}`,
+      data: data,
+      value: "0x0", // No ETH value for ERC20 transfer
+    };
   }
 
   async getUser(): Promise<FarcasterUser | null> {
@@ -100,6 +84,7 @@ class FarcasterService {
       }
       return null;
     } catch (error) {
+      console.error("Failed to get user:", error);
       return null;
     }
   }
@@ -127,6 +112,39 @@ class FarcasterService {
 
   isInFarcaster(): boolean {
     return this.isInitialized;
+  }
+
+  // Helper method to get capabilities
+  async getCapabilities(): Promise<string[]> {
+    try {
+      return await sdk.getCapabilities();
+    } catch (error) {
+      console.warn("Failed to get capabilities:", error);
+      return [];
+    }
+  }
+
+  // Haptic feedback helpers
+  async triggerSuccessHaptic() {
+    try {
+      const capabilities = await this.getCapabilities();
+      if (capabilities.includes("haptics.impactOccurred")) {
+        await sdk.haptics.impactOccurred("medium");
+      }
+    } catch (error) {
+      console.warn("Haptic feedback not available:", error);
+    }
+  }
+
+  async triggerErrorHaptic() {
+    try {
+      const capabilities = await this.getCapabilities();
+      if (capabilities.includes("haptics.notificationOccurred")) {
+        await sdk.haptics.notificationOccurred("error");
+      }
+    } catch (error) {
+      console.warn("Error haptic feedback not available:", error);
+    }
   }
 }
 

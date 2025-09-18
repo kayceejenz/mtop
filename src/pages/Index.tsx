@@ -14,6 +14,13 @@ import {
   XCircle,
   Loader2,
 } from "lucide-react";
+import {
+  useAccount,
+  useConnect,
+  useSendTransaction,
+  useWaitForTransactionReceipt,
+  type BaseError,
+} from "wagmi";
 import WalletConnect from "@/components/WalletConnect";
 import DailyPrompt from "@/components/DailyPrompt";
 import MemeCard from "@/components/MemeCard";
@@ -27,7 +34,6 @@ import {
   DailyPrompt as DailyPromptType,
 } from "@/lib/firebaseService";
 import { farcasterService } from "@/lib/farcaster";
-import { useWaitForTransactionReceipt } from "wagmi";
 
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
@@ -40,38 +46,70 @@ export default function Index() {
   const [loading, setLoading] = useState(true);
 
   // Pad buying states
-  const [isBuyingPads, setIsBuyingPads] = useState(false);
-  const [transactionHash, setTransactionHash] = useState<string | null>(null);
   const [buyPadsStatus, setBuyPadsStatus] = useState<
     "idle" | "pending" | "confirming" | "success" | "error"
   >("idle");
   const [buyPadsError, setBuyPadsError] = useState<string | null>(null);
 
-  // Watch for transaction confirmation
+  // Wagmi hooks
+  const { isConnected, address } = useAccount();
+  const { connect, connectors } = useConnect();
+  const {
+    data: hash,
+    error: sendError,
+    isPending: isSending,
+    sendTransaction,
+  } = useSendTransaction();
+
   const {
     isLoading: isConfirming,
     isSuccess: isConfirmed,
     isError: isTransactionError,
   } = useWaitForTransactionReceipt({
-    hash: transactionHash as `0x${string}` | undefined,
+    hash,
   });
 
+  // Auto-connect to Farcaster wallet on load
   useEffect(() => {
-    if (transactionHash) {
-      if (isConfirming) {
+    if (!isConnected && connectors.length > 0) {
+      connect({ connector: connectors[0] });
+    }
+  }, [isConnected, connectors, connect]);
+
+  // Handle transaction status changes
+  useEffect(() => {
+    if (hash) {
+      if (isSending) {
+        setBuyPadsStatus("pending");
+      } else if (isConfirming) {
         setBuyPadsStatus("confirming");
       } else if (isConfirmed) {
         setBuyPadsStatus("success");
-        // Credit the pads after confirmation
         handlePadsPurchaseConfirmed();
       } else if (isTransactionError) {
         setBuyPadsStatus("error");
         setBuyPadsError("Transaction failed on blockchain");
-        setTransactionHash(null);
-        setIsBuyingPads(false);
+        farcasterService.triggerErrorHaptic();
       }
     }
-  }, [isConfirming, isConfirmed, isTransactionError, transactionHash]);
+
+    // Handle send transaction errors
+    if (sendError) {
+      setBuyPadsStatus("error");
+      const error = sendError as BaseError;
+      setBuyPadsError(
+        error.shortMessage || error.message || "Transaction failed"
+      );
+      farcasterService.triggerErrorHaptic();
+    }
+  }, [
+    hash,
+    isSending,
+    isConfirming,
+    isConfirmed,
+    isTransactionError,
+    sendError,
+  ]);
 
   // Auto-hide success/error messages after 5 seconds
   useEffect(() => {
@@ -87,9 +125,16 @@ export default function Index() {
   useEffect(() => {
     const loadInitialData = async () => {
       try {
-        const user = await farcasterService.getUser();
-        const updatedUser = await firebaseService.getUserByFid(user.fid);
-        setUser(updatedUser);
+        await farcasterService.initialize();
+        const farcasterUser = await farcasterService.getUser();
+
+        if (farcasterUser) {
+          const updatedUser = await firebaseService.getUserByFid(
+            farcasterUser.fid
+          );
+          setUser(updatedUser);
+        }
+
         const prompt = await firebaseService.getTodayPrompt();
         setTodayPrompt(prompt);
 
@@ -161,6 +206,46 @@ export default function Index() {
     }
   };
 
+  const handleBuyPads = async () => {
+    if (!user || !isConnected) {
+      setBuyPadsError("Please connect your wallet first");
+      return;
+    }
+
+    if (isSending || isConfirming) return;
+
+    try {
+      setBuyPadsStatus("pending");
+      setBuyPadsError(null);
+
+      if (!farcasterService.isInFarcaster()) {
+        throw new Error("This feature requires opening the app in Farcaster");
+      }
+
+      const PADS_TO_BUY = 10;
+
+      // Prepare the transaction using the service
+      const txParams =
+        farcasterService.preparePadsPurchaseTransaction(PADS_TO_BUY);
+
+      // Send transaction using Wagmi
+      sendTransaction(txParams);
+    } catch (error) {
+      console.error("Failed to prepare transaction:", error);
+
+      let errorMessage = "Failed to prepare transaction. Please try again.";
+      if (error.message?.includes("Central wallet address")) {
+        errorMessage = "App configuration error. Please contact support.";
+      } else if (error.message?.includes("Farcaster")) {
+        errorMessage = error.message;
+      }
+
+      setBuyPadsStatus("error");
+      setBuyPadsError(errorMessage);
+      farcasterService.triggerErrorHaptic();
+    }
+  };
+
   const handlePadsPurchaseConfirmed = async () => {
     if (!user) return;
 
@@ -171,6 +256,9 @@ export default function Index() {
 
       console.log(`Successfully purchased ${PADS_TO_BUY} pads.`);
 
+      // Trigger success haptic
+      await farcasterService.triggerSuccessHaptic();
+
       // Share on Farcaster
       try {
         await farcasterService.shareFrame(
@@ -180,83 +268,10 @@ export default function Index() {
       } catch (shareError) {
         console.error("Failed to share:", shareError);
       }
-
-      // Trigger haptic feedback if available
-      try {
-        const capabilities = await farcasterService.getSDK().getCapabilities();
-        if (capabilities.includes("haptics.impactOccurred")) {
-          await farcasterService.getSDK().haptics.impactOccurred("medium");
-        }
-      } catch (hapticError) {
-        console.error("Failed to trigger haptic:", hapticError);
-      }
     } catch (error) {
       console.error("Failed to credit pads:", error);
       setBuyPadsStatus("error");
       setBuyPadsError("Failed to credit pads to your account");
-    } finally {
-      setIsBuyingPads(false);
-      setTransactionHash(null);
-    }
-  };
-
-  const handleBuyPads = async () => {
-    if (!user || isBuyingPads) return;
-
-    // Reset states
-    setBuyPadsStatus("pending");
-    setBuyPadsError(null);
-    setIsBuyingPads(true);
-
-    try {
-      if (!farcasterService.isInFarcaster()) {
-        throw new Error(
-          "USDC payment requires Farcaster context. Please open this app in Farcaster."
-        );
-      }
-
-      const PADS_TO_BUY = 10;
-      const hash = await farcasterService.buyPadsWithUSDC(PADS_TO_BUY);
-
-      if (hash) {
-        setTransactionHash(hash);
-        setBuyPadsStatus("confirming");
-      } else {
-        throw new Error("Transaction failed - no hash returned");
-      }
-    } catch (error) {
-      console.error("Failed to buy pads:", error);
-
-      // Handle specific error cases
-      let errorMessage = "Failed to purchase pads. Please try again.";
-
-      if (error.message?.includes("insufficient funds")) {
-        errorMessage = "Insufficient USDC balance in your Farcaster wallet.";
-      } else if (
-        error.message?.includes("user rejected") ||
-        error.message?.includes("denied")
-      ) {
-        errorMessage = "Transaction was cancelled.";
-      } else if (error.message?.includes("network")) {
-        errorMessage =
-          "Network error. Please check your connection and try again.";
-      } else if (error.message?.includes("Farcaster context")) {
-        errorMessage = error.message;
-      }
-
-      setBuyPadsStatus("error");
-      setBuyPadsError(errorMessage);
-      setIsBuyingPads(false);
-
-      // Trigger error haptic if available
-      try {
-        const capabilities = await farcasterService.getSDK().getCapabilities();
-        if (capabilities.includes("haptics.impactOccurred")) {
-          await farcasterService.getSDK().haptics.impactOccurred("heavy");
-        }
-      } catch (hapticError) {
-        console.error("Failed to trigger haptic:", hapticError);
-      }
     }
   };
 
@@ -282,9 +297,11 @@ export default function Index() {
   };
 
   const getBuyPadsButtonText = () => {
+    if (!isConnected) return "Connect Wallet";
+
     switch (buyPadsStatus) {
       case "pending":
-        return "Initiating...";
+        return "Preparing...";
       case "confirming":
         return "Confirming...";
       case "success":
@@ -295,15 +312,13 @@ export default function Index() {
   };
 
   const getBuyPadsButtonIcon = () => {
-    switch (buyPadsStatus) {
-      case "pending":
-      case "confirming":
-        return <Loader2 className="h-4 w-4 mr-1 animate-spin" />;
-      case "success":
-        return <CheckCircle className="h-4 w-4 mr-1" />;
-      default:
-        return <ShoppingCart className="h-4 w-4 mr-1" />;
+    if (isSending || isConfirming) {
+      return <Loader2 className="h-4 w-4 mr-1 animate-spin" />;
     }
+    if (buyPadsStatus === "success") {
+      return <CheckCircle className="h-4 w-4 mr-1" />;
+    }
+    return <ShoppingCart className="h-4 w-4 mr-1" />;
   };
 
   if (loading) {
@@ -349,17 +364,32 @@ export default function Index() {
                 <span className="text-sm text-blue-600">Pads</span>
               </div>
 
+              {/* Wallet Connection Status */}
+              {isConnected && (
+                <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full border border-green-200">
+                  Wallet Connected
+                </div>
+              )}
+
               <Button
-                onClick={handleBuyPads}
+                onClick={
+                  !isConnected
+                    ? () => connect({ connector: connectors[0] })
+                    : handleBuyPads
+                }
                 size="sm"
-                disabled={isBuyingPads}
+                disabled={isSending || isConfirming}
                 className={`bg-gradient-to-r transition-all duration-200 ${
                   buyPadsStatus === "success"
                     ? "from-green-500 to-emerald-500"
                     : buyPadsStatus === "error"
                     ? "from-red-500 to-red-600"
                     : "from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                } ${isBuyingPads ? "cursor-not-allowed opacity-75" : ""}`}
+                } ${
+                  isSending || isConfirming
+                    ? "cursor-not-allowed opacity-75"
+                    : ""
+                }`}
               >
                 {getBuyPadsButtonIcon()}
                 {getBuyPadsButtonText()}
@@ -387,6 +417,11 @@ export default function Index() {
             <CheckCircle className="h-4 w-4 text-green-600" />
             <AlertDescription className="text-green-800">
               Successfully purchased 10 pads! Your balance has been updated.
+              {hash && (
+                <div className="mt-1 text-xs font-mono break-all">
+                  Transaction: {hash}
+                </div>
+              )}
             </AlertDescription>
           </Alert>
         </div>
@@ -410,6 +445,24 @@ export default function Index() {
             <AlertDescription className="text-blue-800">
               Confirming your transaction on the blockchain. This may take a few
               moments...
+              {hash && (
+                <div className="mt-1 text-xs font-mono break-all">
+                  Transaction: {hash}
+                </div>
+              )}
+            </AlertDescription>
+          </Alert>
+        </div>
+      )}
+
+      {/* Wallet Connection Alert */}
+      {!isConnected && (
+        <div className="container mx-auto px-4 pt-4">
+          <Alert className="border-yellow-200 bg-yellow-50">
+            <Target className="h-4 w-4 text-yellow-600" />
+            <AlertDescription className="text-yellow-800">
+              Connect your Farcaster wallet to purchase pads and interact with
+              the app.
             </AlertDescription>
           </Alert>
         </div>
