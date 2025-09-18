@@ -1,13 +1,10 @@
-import { sdk } from '@farcaster/frame-sdk';
+import { sdk } from "@farcaster/frame-sdk";
 
 export interface FarcasterUser {
   fid: number;
   username: string;
   displayName: string;
   pfpUrl: string;
-  bio?: string;
-  followerCount?: number;
-  followingCount?: number;
 }
 
 class FarcasterService {
@@ -15,13 +12,13 @@ class FarcasterService {
 
   async initialize() {
     if (this.isInitialized) return;
-    
+
     try {
       await sdk.actions.ready();
       this.isInitialized = true;
-      console.log('Farcaster SDK initialized successfully');
+      console.log("Farcaster SDK initialized successfully");
     } catch (error) {
-      console.error('Failed to initialize Farcaster SDK:', error);
+      console.error("Failed to initialize Farcaster SDK:", error);
       // Fallback for development/testing
       this.isInitialized = false;
     }
@@ -32,12 +29,9 @@ class FarcasterService {
       // Return mock user for development
       return {
         fid: 12345,
-        username: 'testuser',
-        displayName: 'Test User',
-        pfpUrl: 'https://via.placeholder.com/100x100/6366f1/ffffff?text=TU',
-        bio: 'Test user for development',
-        followerCount: 100,
-        followingCount: 50,
+        username: "testuser",
+        displayName: "Test User",
+        pfpUrl: "https://via.placeholder.com/100x100/6366f1/ffffff?text=TU",
       };
     }
 
@@ -46,17 +40,14 @@ class FarcasterService {
       if (context.user) {
         return {
           fid: context.user.fid,
-          username: context.user.username || '',
-          displayName: context.user.displayName || '',
-          pfpUrl: context.user.pfpUrl || '',
-          bio: context.user.bio,
-          followerCount: context.user.followerCount,
-          followingCount: context.user.followingCount,
+          username: context.user.username || "",
+          displayName: context.user.displayName || "",
+          pfpUrl: context.user.pfpUrl || "",
         };
       }
       return null;
     } catch (error) {
-      console.error('Failed to get Farcaster user:', error);
+      console.error("Failed to get Farcaster user:", error);
       return null;
     }
   }
@@ -77,7 +68,7 @@ class FarcasterService {
     try {
       return await sdk.actions.openUrl(embedUrl || window.location.href);
     } catch (error) {
-      console.error('Failed to share frame:', error);
+      console.error("Failed to share frame:", error);
       throw error;
     }
   }
