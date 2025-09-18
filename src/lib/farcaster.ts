@@ -26,7 +26,6 @@ class FarcasterService {
 
   async getUser(): Promise<FarcasterUser | null> {
     if (!this.isInitialized) {
-      // Return mock user for development
       return {
         fid: 12345,
         username: "testuser",
@@ -37,6 +36,8 @@ class FarcasterService {
 
     try {
       const context = await sdk.context;
+      console.log(context);
+
       if (context.user) {
         return {
           fid: context.user.fid,
