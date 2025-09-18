@@ -116,7 +116,7 @@ export default function ShareModal({
 
           <div className="relative">
             <img
-              src={meme.image}
+              src={meme.imageUrl}
               alt={meme.caption}
               className="w-full h-32 object-cover rounded-lg"
             />
