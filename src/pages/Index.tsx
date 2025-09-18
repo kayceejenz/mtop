@@ -364,13 +364,6 @@ export default function Index() {
                 <span className="text-sm text-blue-600">Pads</span>
               </div>
 
-              {/* Wallet Connection Status */}
-              {isConnected && (
-                <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded-full border border-green-200">
-                  Wallet Connected
-                </div>
-              )}
-
               <Button
                 onClick={
                   !isConnected
