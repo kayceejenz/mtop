@@ -1,16 +1,22 @@
-import { useState, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Coins, Trophy, Target, ShoppingCart } from 'lucide-react';
-import WalletConnect from '@/components/WalletConnect';
-import DailyPrompt from '@/components/DailyPrompt';
-import MemeCard from '@/components/MemeCard';
-import CommentSection from '@/components/CommentSection';
-import ShareModal from '@/components/ShareModal';
-import MemeSubmission from '@/components/MemeSubmission';
-import { firebaseService, User, Meme, DailyPrompt as DailyPromptType } from '@/lib/firebaseService';
+import { useState, useEffect } from "react";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Plus, Coins, Trophy, Target, ShoppingCart } from "lucide-react";
+import WalletConnect from "@/components/WalletConnect";
+import DailyPrompt from "@/components/DailyPrompt";
+import MemeCard from "@/components/MemeCard";
+import CommentSection from "@/components/CommentSection";
+import ShareModal from "@/components/ShareModal";
+import MemeSubmission from "@/components/MemeSubmission";
+import {
+  firebaseService,
+  User,
+  Meme,
+  DailyPrompt as DailyPromptType,
+} from "@/lib/firebaseService";
+import { farcasterService } from "@/lib/farcaster";
 
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
@@ -25,15 +31,18 @@ export default function Index() {
   useEffect(() => {
     const loadInitialData = async () => {
       try {
+        const user = await farcasterService.getUser();
+        const updatedUser = await firebaseService.getUserByFid(user.fid);
+        setUser(updatedUser);
         const prompt = await firebaseService.getTodayPrompt();
         setTodayPrompt(prompt);
-        
+
         if (prompt) {
           const promptMemes = await firebaseService.getMemesByPrompt(prompt.id);
           setMemes(promptMemes);
         }
       } catch (error) {
-        console.error('Failed to load initial data:', error);
+        console.error("Failed to load initial data:", error);
       } finally {
         setLoading(false);
       }
@@ -46,9 +55,12 @@ export default function Index() {
     if (!todayPrompt) return;
 
     // Subscribe to real-time meme updates
-    const unsubscribe = firebaseService.subscribeToMemes(todayPrompt.id, (updatedMemes) => {
-      setMemes(updatedMemes);
-    });
+    const unsubscribe = firebaseService.subscribeToMemes(
+      todayPrompt.id,
+      (updatedMemes) => {
+        setMemes(updatedMemes);
+      }
+    );
 
     return () => unsubscribe();
   }, [todayPrompt]);
@@ -65,7 +77,7 @@ export default function Index() {
           setUser(updatedUser);
         }
       } catch (error) {
-        console.error('Failed to refresh user:', error);
+        console.error("Failed to refresh user:", error);
       }
     }
   };
@@ -89,38 +101,40 @@ export default function Index() {
         await handleRefresh();
       }
     } catch (error) {
-      console.error('Failed to vote:', error);
+      console.error("Failed to vote:", error);
     }
   };
 
   const handleBuyPads = async () => {
     if (!user) return;
-    
+
     try {
       // Simulate buying 10 pads for $5
       await firebaseService.buyPads(user.id, 10);
       await handleRefresh();
     } catch (error) {
-      console.error('Failed to buy pads:', error);
+      console.error("Failed to buy pads:", error);
     }
   };
 
   const handleMemeSubmitted = async () => {
     await handleRefresh();
     if (todayPrompt) {
-      const updatedMemes = await firebaseService.getMemesByPrompt(todayPrompt.id);
+      const updatedMemes = await firebaseService.getMemesByPrompt(
+        todayPrompt.id
+      );
       setMemes(updatedMemes);
     }
   };
 
   const handleShareReward = async () => {
     if (!user) return;
-    
+
     try {
       await firebaseService.rewardSharing(user.id);
       await handleRefresh();
     } catch (error) {
-      console.error('Failed to reward sharing:', error);
+      console.error("Failed to reward sharing:", error);
     }
   };
 
@@ -177,12 +191,14 @@ export default function Index() {
               </Button>
 
               <div className="flex items-center space-x-1">
-                <img 
-                  src={user.pfpUrl} 
+                <img
+                  src={user.pfpUrl}
                   alt={user.displayName}
                   className="w-8 h-8 rounded-full"
                 />
-                <span className="text-sm font-medium hidden sm:inline">{user.username}</span>
+                <span className="text-sm font-medium hidden sm:inline">
+                  {user.username}
+                </span>
               </div>
             </div>
           </div>
@@ -248,28 +264,32 @@ export default function Index() {
                     <div
                       key={meme.id}
                       className={`flex items-center space-x-4 p-3 rounded-lg ${
-                        index < 3 ? 'bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200' : 'bg-gray-50'
+                        index < 3
+                          ? "bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200"
+                          : "bg-gray-50"
                       }`}
                     >
                       <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white border-2 border-gray-200 font-bold text-sm">
                         {index + 1}
                       </div>
-                      
-                      <img 
-                        src={meme.imageUrl} 
+
+                      <img
+                        src={meme.imageUrl}
                         alt={meme.caption}
                         className="w-12 h-12 object-cover rounded"
                       />
-                      
+
                       <div className="flex-1 min-w-0">
                         <p className="font-medium truncate">{meme.caption}</p>
                         <p className="text-sm text-muted-foreground">
                           by {meme.creator.username}
                         </p>
                       </div>
-                      
+
                       <div className="text-right">
-                        <div className="font-bold text-red-500">{meme.likes} ❤️</div>
+                        <div className="font-bold text-red-500">
+                          {meme.likes} ❤️
+                        </div>
                         <div className="text-sm text-green-600 flex items-center">
                           <Coins className="h-3 w-3 mr-1" />
                           {meme.rewardPool}
