@@ -1,9 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Card, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Heart, MessageCircle, Share2, Trophy, Coins } from 'lucide-react';
-import { Meme, User, firebaseService } from '@/lib/firebaseService';
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { Heart, MessageCircle, Share2, Trophy, Coins } from "lucide-react";
+import { Meme, User, firebaseService } from "@/lib/firebaseService";
 
 interface MemeCardProps {
   meme: Meme;
@@ -14,7 +14,14 @@ interface MemeCardProps {
   onVote: () => void;
 }
 
-export default function MemeCard({ meme, currentUser, rank, onComment, onShare, onVote }: MemeCardProps) {
+export default function MemeCard({
+  meme,
+  currentUser,
+  rank,
+  onComment,
+  onShare,
+  onVote,
+}: MemeCardProps) {
   const [isVoting, setIsVoting] = useState(false);
   const [confetti, setConfetti] = useState(false);
   const [hasVoted, setHasVoted] = useState(false);
@@ -23,10 +30,13 @@ export default function MemeCard({ meme, currentUser, rank, onComment, onShare, 
   useEffect(() => {
     const checkVoteStatus = async () => {
       try {
-        const voted = await firebaseService.hasUserVoted(meme.id, currentUser.id);
+        const voted = await firebaseService.hasUserVoted(
+          meme.id,
+          currentUser.id
+        );
         setHasVoted(voted);
       } catch (error) {
-        console.error('Failed to check vote status:', error);
+        console.error("Failed to check vote status:", error);
       }
     };
 
@@ -35,7 +45,7 @@ export default function MemeCard({ meme, currentUser, rank, onComment, onShare, 
         const comments = await firebaseService.getCommentsByMeme(meme.id);
         setCommentCount(comments.length);
       } catch (error) {
-        console.error('Failed to load comment count:', error);
+        console.error("Failed to load comment count:", error);
       }
     };
 
@@ -45,12 +55,12 @@ export default function MemeCard({ meme, currentUser, rank, onComment, onShare, 
 
   const handleVote = async () => {
     if (currentUser.pads <= 0 || hasVoted || isVoting) return;
-    
+
     setIsVoting(true);
-    
+
     try {
       const success = await firebaseService.voteMeme(meme.id, currentUser.id);
-      
+
       if (success) {
         setHasVoted(true);
         setConfetti(true);
@@ -58,34 +68,50 @@ export default function MemeCard({ meme, currentUser, rank, onComment, onShare, 
         onVote();
       }
     } catch (error) {
-      console.error('Failed to vote:', error);
+      console.error("Failed to vote:", error);
     } finally {
       setTimeout(() => setIsVoting(false), 500);
     }
   };
 
   const isTopThree = rank && rank <= 3;
-  const crownEmoji = rank === 1 ? '👑' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : '';
+  const crownEmoji =
+    rank === 1 ? "👑" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "";
   const canVote = currentUser.pads > 0 && !hasVoted && !isVoting;
 
   return (
-    <Card className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg ${
-      isTopThree ? 'border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-amber-50' : 'hover:shadow-md'
-    } ${confetti ? 'animate-pulse' : ''}`}>
+    <Card
+      className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg ${
+        isTopThree
+          ? "border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-amber-50"
+          : "hover:shadow-md"
+      } ${confetti ? "animate-pulse" : ""}`}
+    >
       {confetti && (
         <div className="absolute inset-0 pointer-events-none z-10">
-          <div className="absolute top-4 left-4 text-2xl animate-bounce">🎉</div>
-          <div className="absolute top-4 right-4 text-2xl animate-bounce delay-100">✨</div>
-          <div className="absolute bottom-4 left-4 text-2xl animate-bounce delay-200">🎊</div>
-          <div className="absolute bottom-4 right-4 text-2xl animate-bounce delay-300">⭐</div>
+          <div className="absolute top-4 left-4 text-2xl animate-bounce">
+            🎉
+          </div>
+          <div className="absolute top-4 right-4 text-2xl animate-bounce delay-100">
+            ✨
+          </div>
+          <div className="absolute bottom-4 left-4 text-2xl animate-bounce delay-200">
+            🎊
+          </div>
+          <div className="absolute bottom-4 right-4 text-2xl animate-bounce delay-300">
+            ⭐
+          </div>
         </div>
       )}
 
       {rank && (
         <div className="absolute top-2 left-2 z-20">
-          <Badge variant={isTopThree ? "default" : "secondary"} className={`text-sm font-bold ${
-            isTopThree ? 'bg-yellow-500 text-white' : ''
-          }`}>
+          <Badge
+            variant={isTopThree ? "default" : "secondary"}
+            className={`text-sm font-bold ${
+              isTopThree ? "bg-yellow-500 text-white" : ""
+            }`}
+          >
             {crownEmoji} #{rank}
           </Badge>
         </div>
@@ -93,8 +119,8 @@ export default function MemeCard({ meme, currentUser, rank, onComment, onShare, 
 
       <CardContent className="p-0">
         <div className="relative">
-          <img 
-            src={meme.imageUrl} 
+          <img
+            src={meme.imageUrl}
             alt={meme.caption}
             className="w-full h-64 object-cover"
           />
@@ -115,14 +141,21 @@ export default function MemeCard({ meme, currentUser, rank, onComment, onShare, 
                 {meme.caption}
               </p>
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-                <img 
-                  src={meme.creator.pfpUrl} 
+                <img
+                  src={meme.creator.pfpUrl}
                   alt={meme.creator.displayName}
                   className="w-5 h-5 rounded-full"
                 />
                 <span className="font-medium">{meme.creator.username}</span>
                 <span>•</span>
-                <span>{meme.createdAt.toDate().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                <span>
+                  {meme.createdAt
+                    ?.toDate()
+                    .toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                </span>
               </div>
             </div>
           </div>
@@ -134,12 +167,17 @@ export default function MemeCard({ meme, currentUser, rank, onComment, onShare, 
                 size="sm"
                 onClick={handleVote}
                 disabled={!canVote}
-                className={`${canVote 
-                  ? 'bg-red-500 hover:bg-red-600 text-white' 
-                  : 'bg-gray-200 text-gray-500 cursor-not-allowed'
-                } transition-all duration-200 ${hasVoted ? 'bg-red-600' : ''}`}
+                className={`${
+                  canVote
+                    ? "bg-red-500 hover:bg-red-600 text-white"
+                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
+                } transition-all duration-200 ${hasVoted ? "bg-red-600" : ""}`}
               >
-                <Heart className={`w-4 h-4 mr-1 ${isVoting ? 'animate-pulse' : ''} ${hasVoted ? 'fill-current' : ''}`} />
+                <Heart
+                  className={`w-4 h-4 mr-1 ${isVoting ? "animate-pulse" : ""} ${
+                    hasVoted ? "fill-current" : ""
+                  }`}
+                />
                 {meme.likes}
               </Button>
 
