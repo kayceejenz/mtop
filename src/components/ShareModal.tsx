@@ -1,0 +1,189 @@
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Share2, Twitter, MessageSquare, Send, Copy, Gift } from "lucide-react";
+
+interface ShareModalProps {
+  meme: any | null;
+  isOpen: boolean;
+  onClose: () => void;
+  onPadsEarned: () => void;
+}
+
+export default function ShareModal({
+  meme,
+  isOpen,
+  onClose,
+  onPadsEarned,
+}: ShareModalProps) {
+  if (!meme) return null;
+
+  const shareText = `Check out this hilarious meme: "${meme.caption}" 😂 Vote and earn rewards on MemeTop! 🎭🚀`;
+  const shareUrl = window.location.href;
+
+  const handleShare = (platform: string) => {
+    let url = "";
+
+    switch (platform) {
+      case "twitter":
+        url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
+          shareText
+        )}&url=${encodeURIComponent(shareUrl)}`;
+        break;
+      case "warpcast":
+        // Warpcast/Farcaster sharing (simplified)
+        url = `https://warpcast.com/~/compose?text=${encodeURIComponent(
+          shareText + " " + shareUrl
+        )}`;
+        break;
+      case "telegram":
+        url = `https://t.me/share/url?url=${encodeURIComponent(
+          shareUrl
+        )}&text=${encodeURIComponent(shareText)}`;
+        break;
+      default:
+        return;
+    }
+
+    window.open(url, "_blank", "width=600,height=400");
+
+    // Reward user with 2 pads for sharing
+    // shareForPads();
+    onPadsEarned();
+    onClose();
+  };
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
+      // Show success feedback (in a real app, you'd use a toast)
+      alert("Link copied to clipboard! 📋");
+      // shareForPads();
+      onPadsEarned();
+      onClose();
+    } catch (err) {
+      console.error("Failed to copy link:", err);
+    }
+  };
+
+  const handleWebShare = async () => {
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: "MemeTop - Hilarious Meme!",
+          text: shareText,
+          url: shareUrl,
+        });
+        // shareForPads();
+        onPadsEarned();
+        onClose();
+      } catch (err) {
+        console.error("Web share failed:", err);
+      }
+    }
+  };
+
+  return (
+    <Dialog open={isOpen} onOpenChange={onClose}>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="text-center flex items-center justify-center space-x-2">
+            <Share2 className="h-5 w-5" />
+            <span>Share This Meme</span>
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="space-y-4">
+          <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
+            <CardContent className="pt-4 text-center">
+              <div className="flex items-center justify-center space-x-2 mb-2">
+                <Gift className="h-5 w-5 text-green-600" />
+                <span className="font-semibold text-green-700">
+                  Earn +2 Pads for sharing!
+                </span>
+                <span className="text-xl">🎯</span>
+              </div>
+              <p className="text-sm text-muted-foreground">
+                Help spread the fun and get rewarded!
+              </p>
+            </CardContent>
+          </Card>
+
+          <div className="relative">
+            <img
+              src={meme.image}
+              alt={meme.caption}
+              className="w-full h-32 object-cover rounded-lg"
+            />
+            <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex items-center justify-center">
+              <p className="text-white text-sm font-medium text-center px-4">
+                "{meme.caption}"
+              </p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <Button
+              onClick={() => handleShare("twitter")}
+              className="bg-blue-500 hover:bg-blue-600 text-white"
+            >
+              <Twitter className="w-4 h-4 mr-2" />
+              Twitter
+            </Button>
+
+            <Button
+              onClick={() => handleShare("warpcast")}
+              className="bg-purple-500 hover:bg-purple-600 text-white"
+            >
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Warpcast
+            </Button>
+
+            <Button
+              onClick={() => handleShare("telegram")}
+              className="bg-cyan-500 hover:bg-cyan-600 text-white"
+            >
+              <Send className="w-4 h-4 mr-2" />
+              Telegram
+            </Button>
+
+            <Button
+              onClick={handleCopyLink}
+              variant="outline"
+              className="hover:bg-gray-50"
+            >
+              <Copy className="w-4 h-4 mr-2" />
+              Copy Link
+            </Button>
+          </div>
+
+          {navigator.share && (
+            <Button
+              onClick={handleWebShare}
+              variant="outline"
+              className="w-full"
+            >
+              <Share2 className="w-4 h-4 mr-2" />
+              More Options
+            </Button>
+          )}
+
+          <div className="text-center">
+            <Button
+              onClick={onClose}
+              variant="ghost"
+              className="text-muted-foreground"
+            >
+              Maybe Later
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
