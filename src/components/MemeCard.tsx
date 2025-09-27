@@ -83,10 +83,10 @@ export default function MemeCard({
 
   return (
     <Card
-      className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg ${
+      className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/10 dark:to-gray-900 ${
         isTopThree
-          ? "border-2 border-yellow-400 bg-gradient-to-br from-yellow-50 to-amber-50"
-          : "hover:shadow-md"
+          ? "border-2 border-purple-400 "
+          : "hover:shadow-md border border-gray-200 dark:border-gray-700"
       } ${confetti ? "animate-pulse" : ""}`}
     >
       {confetti && (
@@ -111,7 +111,9 @@ export default function MemeCard({
           <Badge
             variant={isTopThree ? "default" : "secondary"}
             className={`text-sm font-bold ${
-              isTopThree ? "bg-yellow-500 text-white" : ""
+              isTopThree
+                ? "bg-gradient-to-r from-purple-500 to-indigo-500 text-white dark:from-purple-300 dark:to-indigo-400 dark:text-gray-900"
+                : "bg-gray-200 dark:bg-gray-800 text-gray-700 dark:text-gray-300"
             }`}
           >
             {crownEmoji} #{rank}
@@ -128,8 +130,8 @@ export default function MemeCard({
           />
           {meme.likes >= 1000 && (
             <div className="absolute top-2 right-2">
-              <Badge className="bg-green-500 text-white">
-                <Trophy className="w-3 h-3 mr-1" />
+              <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white dark:from-purple-300 dark:to-indigo-400 dark:text-gray-900">
+                <Trophy className="w-3 h-3 " />
                 1K Club!
               </Badge>
             </div>
@@ -139,7 +141,7 @@ export default function MemeCard({
         <div className="p-4 space-y-3">
           <div className="flex items-start justify-between">
             <div className="flex-1">
-              <p className="font-medium text-gray-900 leading-tight mb-2">
+              <p className="font-medium text-gray-900 dark:text-gray-100 leading-tight mb-2">
                 {meme.caption}
               </p>
               <div className="flex items-center space-x-2 text-sm text-muted-foreground">
@@ -162,20 +164,35 @@ export default function MemeCard({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              <Button
-                variant={canVote ? "default" : "secondary"}
+              {/* <Button
                 size="sm"
                 onClick={handleVote}
                 disabled={!canVote}
-                className={`${
+                className={`transition-all duration-200 ${
                   canVote
-                    ? "bg-red-500 hover:bg-red-600 text-white"
-                    : "bg-gray-200 text-gray-500 cursor-not-allowed"
-                } transition-all duration-200 ${hasVoted ? "bg-red-600" : ""}`}
+                    ? `bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white dark:from-purple-300 dark:to-indigo-400 dark:text-gray-900`
+                    : "bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
+                } ${
+                  hasVoted ? "ring-2 ring-purple-400 dark:ring-purple-300" : ""
+                }`}
               >
                 <Heart
-                  className={`w-4 h-4 mr-1 ${isVoting ? "animate-pulse" : ""} ${
+                  className={`w-4 h-4  ${isVoting ? "animate-pulse" : ""} ${
                     hasVoted ? "fill-current" : ""
+                  }`}
+                />
+                {meme.likes}
+              </Button> */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleVote}
+                disabled={!canVote}
+                className={`transition-all duration-200 flex items-center px-3 py-1 rounded-md`}
+              >
+                <Heart
+                  className={`w-4 h-4  transition-colors duration-200 ${
+                    hasVoted ? "fill-red-500 text-red-500" : "text-gray-800"
                   }`}
                 />
                 {meme.likes}
@@ -185,9 +202,9 @@ export default function MemeCard({
                 variant="outline"
                 size="sm"
                 onClick={onComment}
-                className="hover:bg-blue-50"
+                className="hover:bg-purple-50 dark:hover:bg-purple-900/30"
               >
-                <MessageCircle className="w-4 h-4 mr-1" />
+                <MessageCircle className="w-4 h-4 " />
                 {commentCount}
               </Button>
 
@@ -195,28 +212,28 @@ export default function MemeCard({
                 variant="outline"
                 size="sm"
                 onClick={onShare}
-                className="hover:bg-green-50"
+                className="hover:bg-indigo-50 dark:hover:bg-indigo-900/30"
               >
                 <Share2 className="w-4 h-4" />
               </Button>
             </div>
 
             <div className="flex items-center space-x-2">
-              <div className="flex items-center text-sm text-green-600 font-medium">
-                <Coins className="w-4 h-4 mr-1" />
+              <div className="flex items-center text-sm font-medium text-purple-600 dark:text-purple-300">
+                <Coins className="w-4 h-4 " />
                 {Math.floor(meme.rewardPool)} tokens
               </div>
             </div>
           </div>
 
           {currentUser.pads <= 0 && !hasVoted && (
-            <div className="text-xs text-center text-red-500 bg-red-50 p-2 rounded">
-              Out of Pads! Buy more to keep voting 🎯
+            <div className="text-xs text-center text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/30 p-2 rounded">
+              Out of likes! Buy more to keep voting 🎯
             </div>
           )}
 
           {hasVoted && (
-            <div className="text-xs text-center text-green-600 bg-green-50 p-2 rounded">
+            <div className="text-xs text-center text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 p-2 rounded">
               You voted for this meme! 💚
             </div>
           )}

@@ -90,43 +90,46 @@ export default function ShareModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-[#0b0b14] dark:to-purple-900/20 border-2 border-purple-300 dark:border-purple-200 rounded-xl shadow-xl">
         <DialogHeader>
-          <DialogTitle className="text-center flex items-center justify-center space-x-2">
+          <DialogTitle className="text-center flex items-center justify-center space-x-2 text-purple-700 dark:text-purple-200">
             <Share2 className="h-5 w-5" />
             <span>Share This Meme</span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
-          <Card className="border-2 border-green-200 bg-gradient-to-br from-green-50 to-emerald-50">
+        <div className="space-y-5">
+          {/* Reward Card */}
+          <Card className="border-2 border-green-300 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/10">
             <CardContent className="pt-4 text-center">
               <div className="flex items-center justify-center space-x-2 mb-2">
-                <Gift className="h-5 w-5 text-green-600" />
-                <span className="font-semibold text-green-700">
+                <Gift className="h-5 w-5 text-green-600 dark:text-green-400" />
+                <span className="font-semibold text-green-700 dark:text-green-300">
                   Earn +2 Pads for sharing!
                 </span>
                 <span className="text-xl">🎯</span>
               </div>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-sm text-gray-600 dark:text-gray-400">
                 Help spread the fun and get rewarded!
               </p>
             </CardContent>
           </Card>
 
+          {/* Meme Preview */}
           <div className="relative">
             <img
               src={meme.imageUrl}
               alt={meme.caption}
-              className="w-full h-32 object-cover rounded-lg"
+              className="w-full h-40 object-cover rounded-lg"
             />
-            <div className="absolute inset-0 bg-black bg-opacity-40 rounded-lg flex items-center justify-center">
-              <p className="text-white text-sm font-medium text-center px-4">
+            <div className="absolute inset-0 bg-black/50 rounded-lg flex items-center justify-center">
+              <p className="text-white text-sm font-medium text-center px-4 italic">
                 "{meme.caption}"
               </p>
             </div>
           </div>
 
+          {/* Share Buttons */}
           <div className="grid grid-cols-2 gap-3">
             <Button
               onClick={() => handleShare("twitter")}
@@ -155,29 +158,31 @@ export default function ShareModal({
             <Button
               onClick={handleCopyLink}
               variant="outline"
-              className="hover:bg-gray-50"
+              className="hover:bg-purple-900/30 border-purple-200 dark:border-purple-300 text-gray-700 dark:text-gray-200"
             >
               <Copy className="w-4 h-4 mr-2" />
               Copy Link
             </Button>
           </div>
 
+          {/* Native Share Option */}
           {navigator.share && (
             <Button
               onClick={handleWebShare}
               variant="outline"
-              className="w-full"
+              className="w-full border-purple-200 dark:border-purple-300 hover:bg-purple-900/30 text-gray-700 dark:text-gray-200"
             >
               <Share2 className="w-4 h-4 mr-2" />
               More Options
             </Button>
           )}
 
+          {/* Footer */}
           <div className="text-center">
             <Button
               onClick={onClose}
               variant="ghost"
-              className="text-muted-foreground"
+              className="text-gray-500 dark:text-gray-400 hover:text-purple-300"
             >
               Maybe Later
             </Button>

@@ -1,11 +1,16 @@
-import { useState } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Upload, Image as ImageIcon, Sparkles } from 'lucide-react';
-import { User, DailyPrompt, firebaseService } from '@/lib/firebaseService';
+import { useState } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
+import { Upload, Image as ImageIcon, Sparkles } from "lucide-react";
+import { User, DailyPrompt, firebaseService } from "@/lib/firebaseService";
 
 interface MemeSubmissionProps {
   currentUser: User;
@@ -15,10 +20,16 @@ interface MemeSubmissionProps {
   onSubmit: () => void;
 }
 
-export default function MemeSubmission({ currentUser, todayPrompt, isOpen, onClose, onSubmit }: MemeSubmissionProps) {
-  const [caption, setCaption] = useState('');
+export default function MemeSubmission({
+  currentUser,
+  todayPrompt,
+  isOpen,
+  onClose,
+  onSubmit,
+}: MemeSubmissionProps) {
+  const [caption, setCaption] = useState("");
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string>('');
+  const [imagePreview, setImagePreview] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,7 +51,10 @@ export default function MemeSubmission({ currentUser, todayPrompt, isOpen, onClo
 
     try {
       // Upload image to Firebase Storage
-      const imageUrl = await firebaseService.uploadMemeImage(imageFile, currentUser.id);
+      const imageUrl = await firebaseService.uploadMemeImage(
+        imageFile,
+        currentUser.id
+      );
 
       // Create meme in Firestore
       await firebaseService.createMeme({
@@ -58,15 +72,15 @@ export default function MemeSubmission({ currentUser, todayPrompt, isOpen, onClo
       });
 
       // Reset form
-      setCaption('');
+      setCaption("");
       setImageFile(null);
-      setImagePreview('');
-      
+      setImagePreview("");
+
       onSubmit();
       onClose();
     } catch (error) {
-      console.error('Failed to submit meme:', error);
-      alert('Failed to submit meme. Please try again.');
+      console.error("Failed to submit meme:", error);
+      alert("Failed to submit meme. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -76,43 +90,47 @@ export default function MemeSubmission({ currentUser, todayPrompt, isOpen, onClo
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto bg-gradient-to-br from-purple-50 to-purple-50 dark:from-[#0b0b14] dark:to-purple-900/20 border-2 border-purple-200 dark:border-purple-200 rounded-xl shadow-lg">
         <DialogHeader>
-          <DialogTitle className="flex items-center space-x-2">
-            <Sparkles className="h-5 w-5 text-yellow-500" />
-            <span>Submit Your Meme</span>
+          <DialogTitle className="flex items-center justify-center space-x-2 text-center">
+            <Sparkles className="h-5 w-5 text-purple-600 dark:text-purple-300" />
+            <span className="font-bold text-purple-700 dark:text-purple-200">
+              Submit Your Meme
+            </span>
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4">
+        <div className="space-y-6">
           {todayPrompt && (
-            <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-              <p className="text-sm font-medium text-yellow-800 mb-1">
-                📝 Today's Prompt:
+            <div className="bg-purple-100 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-3">
+              <p className="text-sm font-medium text-purple-800 dark:text-purple-300 mb-1">
+                📝 Today’s Prompt:
               </p>
-              <p className="text-sm text-yellow-700">
-                "{todayPrompt.prompt}"
+              <p className="text-sm text-purple-700 dark:text-purple-200 italic">
+                “{todayPrompt.prompt}”
               </p>
             </div>
           )}
 
+          {/* Upload Meme Image */}
           <div className="space-y-2">
             <Label htmlFor="image-upload">Meme Image</Label>
-            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center hover:border-gray-400 transition-colors">
+            <div className="border-2 border-dashed border-gray-300 dark:border-gray-600 rounded-lg p-6 text-center hover:border-purple-400 dark:hover:border-purple-500 transition-colors">
               {imagePreview ? (
                 <div className="space-y-2">
-                  <img 
-                    src={imagePreview} 
-                    alt="Preview" 
+                  <img
+                    src={imagePreview}
+                    alt="Preview"
                     className="max-w-full h-48 object-contain mx-auto rounded"
                   />
                   <Button
                     variant="outline"
                     size="sm"
                     onClick={() => {
-                      setImagePreview('');
+                      setImagePreview("");
                       setImageFile(null);
                     }}
+                    className="border-purple-300 dark:border-purple-600 text-purple-700 dark:text-purple-300"
                   >
                     Change Image
                   </Button>
@@ -122,12 +140,15 @@ export default function MemeSubmission({ currentUser, todayPrompt, isOpen, onClo
                   <ImageIcon className="h-12 w-12 text-gray-400 mx-auto" />
                   <div>
                     <Label htmlFor="image-upload" className="cursor-pointer">
-                      <span className="text-blue-600 hover:text-blue-700 font-medium">
+                      <span className="text-purple-600 hover:text-purple-700 dark:text-purple-300 dark:hover:text-purple-200 font-medium">
                         Click to upload
                       </span>
-                      <span className="text-gray-500"> or drag and drop</span>
+                      <span className="text-gray-500 dark:text-gray-400">
+                        {" "}
+                        or drag and drop
+                      </span>
                     </Label>
-                    <p className="text-xs text-gray-500 mt-1">
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                       PNG, JPG, GIF up to 10MB
                     </p>
                   </div>
@@ -143,6 +164,7 @@ export default function MemeSubmission({ currentUser, todayPrompt, isOpen, onClo
             </div>
           </div>
 
+          {/* Caption */}
           <div className="space-y-2">
             <Label htmlFor="caption">Caption</Label>
             <Textarea
@@ -158,22 +180,24 @@ export default function MemeSubmission({ currentUser, todayPrompt, isOpen, onClo
             </p>
           </div>
 
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <p className="text-sm text-blue-800">
+          {/* Pro Tips */}
+          <div className="bg-purple-50 dark:bg-purple-900/20 border border-purple-200 dark:border-purple-700 rounded-lg p-3">
+            <p className="text-sm text-purple-700 dark:text-purple-200">
               💡 <strong>Pro Tips:</strong>
             </p>
-            <ul className="text-xs text-blue-700 mt-1 space-y-1">
-              <li>• Make it relatable to today's prompt</li>
+            <ul className="text-xs text-purple-600 dark:text-purple-300 mt-1 space-y-1">
+              <li>• Make it relatable to today’s prompt</li>
               <li>• Keep it funny and engaging</li>
               <li>• Reach 1000 Pads to earn 30% rewards!</li>
             </ul>
           </div>
 
-          <div className="flex space-x-2 pt-4">
+          {/* Actions */}
+          <div className="flex space-x-2 pt-2">
             <Button
               onClick={onClose}
               variant="outline"
-              className="flex-1"
+              className="flex-1 border-gray-300 dark:border-gray-600"
               disabled={isSubmitting}
             >
               Cancel
@@ -181,7 +205,7 @@ export default function MemeSubmission({ currentUser, todayPrompt, isOpen, onClo
             <Button
               onClick={handleSubmit}
               disabled={!isFormValid || isSubmitting}
-              className="flex-1 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
+              className="flex-1 bg-gradient-to-r from-purple-500 dark:from-purple-300 to-indigo-500 dark:to-indigo-400 hover:from-purple-400 hover:to-indigo-400 text-white dark:text-gray-900 font-medium shadow-lg hover:shadow-xl transition-all duration-200"
             >
               {isSubmitting ? (
                 <>
