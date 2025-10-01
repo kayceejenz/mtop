@@ -340,7 +340,7 @@ class FirebaseService {
   async rewardSharing(userId: string): Promise<boolean> {
     try {
       // Reward pads
-      await this.updateUserPads(userId, 0.02);
+      await this.updateUserPads(userId, 0.2);
 
       // // Log the share action
       // await addDoc(collection(db, "shares"), {
