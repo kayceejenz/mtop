@@ -343,10 +343,10 @@ class FirebaseService {
       await this.updateUserPads(userId, 0.2);
 
       // // Log the share action
-      // await addDoc(collection(db, "shares"), {
-      //   userId,
-      //   createdAt: serverTimestamp(),
-      // });
+      await addDoc(collection(db, "shares"), {
+        userId,
+        createdAt: serverTimestamp(),
+      });
 
       return true;
     } catch (err) {
