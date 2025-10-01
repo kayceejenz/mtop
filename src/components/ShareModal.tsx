@@ -30,14 +30,6 @@ export default function ShareModal({
   const shareUrl = window.location.href;
 
   // local helper function that has access to props
-  const shareForPads = async () => {
-    if (!currentUser) return;
-    try {
-      await firebaseService.updateUserPads(currentUser.id, 0.02); // assuming +0.02 pads
-    } catch (err) {
-      console.error("Failed to reward pads:", err);
-    }
-  };
 
   const handleShare = (platform: string) => {
     let url = "";
@@ -63,7 +55,6 @@ export default function ShareModal({
     }
 
     window.open(url, "_blank", "width=600,height=400");
-    shareForPads();
     onPadsEarned();
     onClose();
   };
@@ -72,7 +63,6 @@ export default function ShareModal({
     try {
       await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
       alert("Link copied to clipboard! 📋");
-      shareForPads();
       onPadsEarned();
       onClose();
     } catch (err) {
@@ -88,7 +78,6 @@ export default function ShareModal({
           text: shareText,
           url: shareUrl,
         });
-        shareForPads();
         onPadsEarned();
         onClose();
       } catch (err) {
@@ -114,7 +103,7 @@ export default function ShareModal({
               <div className="flex items-center justify-center space-x-2 mb-2">
                 <Gift className="h-5 w-5 text-green-600 dark:text-green-400" />
                 <span className="font-semibold text-green-700 dark:text-green-300">
-                  Earn +2 Pads for sharing!
+                  Earn +0.02 Pads for sharing!
                 </span>
                 <span className="text-xl">🎯</span>
               </div>

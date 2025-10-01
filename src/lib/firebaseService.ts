@@ -120,7 +120,7 @@ class FirebaseService {
   async updateUserPads(userId: string, padChange: number): Promise<void> {
     const docRef = doc(db, "users", userId);
     await updateDoc(docRef, {
-      pads: increment(-padChange),
+      pads: increment(padChange),
       lastActive: serverTimestamp(),
     });
   }
@@ -340,13 +340,13 @@ class FirebaseService {
   async rewardSharing(userId: string): Promise<boolean> {
     try {
       // Reward pads
-      await this.updateUserPads(userId, 0.5);
+      await this.updateUserPads(userId, 0.02);
 
-      // Log the share action
-      await addDoc(collection(db, "shares"), {
-        userId,
-        createdAt: serverTimestamp(),
-      });
+      // // Log the share action
+      // await addDoc(collection(db, "shares"), {
+      //   userId,
+      //   createdAt: serverTimestamp(),
+      // });
 
       return true;
     } catch (err) {
