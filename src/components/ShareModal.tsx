@@ -7,9 +7,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Share2, Twitter, MessageSquare, Send, Copy, Gift } from "lucide-react";
+import { firebaseService } from "@/lib/firebaseService";
 
 interface ShareModalProps {
   meme: any | null;
+  currentUser: { id: string } | null; // added currentUser typing
   isOpen: boolean;
   onClose: () => void;
   onPadsEarned: () => void;
@@ -17,6 +19,7 @@ interface ShareModalProps {
 
 export default function ShareModal({
   meme,
+  currentUser,
   isOpen,
   onClose,
   onPadsEarned,
@@ -25,6 +28,16 @@ export default function ShareModal({
 
   const shareText = `Check out this hilarious meme: "${meme.caption}" 😂 Vote and earn rewards on MemeTop! 🎭🚀`;
   const shareUrl = window.location.href;
+
+  // local helper function that has access to props
+  const shareForPads = async () => {
+    if (!currentUser) return;
+    try {
+      await firebaseService.updateUserPads(currentUser.id, 0.02); // assuming +0.02 pads
+    } catch (err) {
+      console.error("Failed to reward pads:", err);
+    }
+  };
 
   const handleShare = (platform: string) => {
     let url = "";
@@ -36,7 +49,6 @@ export default function ShareModal({
         )}&url=${encodeURIComponent(shareUrl)}`;
         break;
       case "warpcast":
-        // Warpcast/Farcaster sharing (simplified)
         url = `https://warpcast.com/~/compose?text=${encodeURIComponent(
           shareText + " " + shareUrl
         )}`;
@@ -51,9 +63,7 @@ export default function ShareModal({
     }
 
     window.open(url, "_blank", "width=600,height=400");
-
-    // Reward user with 2 pads for sharing
-    // shareForPads();
+    shareForPads();
     onPadsEarned();
     onClose();
   };
@@ -61,9 +71,8 @@ export default function ShareModal({
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
-      // Show success feedback (in a real app, you'd use a toast)
       alert("Link copied to clipboard! 📋");
-      // shareForPads();
+      shareForPads();
       onPadsEarned();
       onClose();
     } catch (err) {
@@ -79,7 +88,7 @@ export default function ShareModal({
           text: shareText,
           url: shareUrl,
         });
-        // shareForPads();
+        shareForPads();
         onPadsEarned();
         onClose();
       } catch (err) {

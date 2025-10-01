@@ -628,6 +628,7 @@ export default function Index() {
 
       <ShareModal
         meme={selectedMeme}
+        currentUser={user}
         isOpen={showShare}
         onClose={() => setShowShare(false)}
         onPadsEarned={handleShareReward}

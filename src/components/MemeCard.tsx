@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Heart, MessageCircle, Share2, Trophy, Coins } from "lucide-react";
 import { Meme, User, firebaseService } from "@/lib/firebaseService";
 
-const voteWeight = 3;
+const voteWeight = -3;
 interface MemeCardProps {
   meme: Meme;
   currentUser: User;

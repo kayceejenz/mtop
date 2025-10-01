@@ -120,7 +120,7 @@ class FirebaseService {
   async updateUserPads(userId: string, padChange: number): Promise<void> {
     const docRef = doc(db, "users", userId);
     await updateDoc(docRef, {
-      pads: increment(padChange),
+      pads: increment(-padChange),
       lastActive: serverTimestamp(),
     });
   }
