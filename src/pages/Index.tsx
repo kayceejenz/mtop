@@ -13,6 +13,7 @@ import {
   CheckCircle,
   XCircle,
   Loader2,
+  Wallet,
 } from "lucide-react";
 import {
   useAccount,
@@ -34,6 +35,10 @@ import {
   DailyPrompt as DailyPromptType,
 } from "@/lib/firebaseService";
 import { farcasterService } from "@/lib/farcaster";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import Header from "@/components/Header";
+import AirdropPoolBanner from "@/components/AirdropPool";
+import { Timestamp } from "firebase/firestore";
 
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
@@ -387,143 +392,98 @@ export default function Index() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50 flex items-center justify-center">
+      <div className="min-h-screen transition-colors duration-500 bg-purple-50 dark:bg-[#0b0b14] flex items-center justify-center">
         <div className="text-center space-y-4">
-          <div className="text-6xl animate-pulse">🎭</div>
-          <p className="text-lg text-muted-foreground">Loading MemeTop...</p>
+          {/* <div className="text-6xl bg-gradient-to-r from-purple-500 to-purple-500 dark:from-purple-300 dark:to-purple-300 bg-clip-text text-transparent animate-bounce ">
+            🎭
+          </div> */}
+          <div className="text-6xl mb-4 animate-bounce">😎</div>
+          <p className="text-xl font-medium text-purple-700 dark:text-white">
+            Loading Memedotfun...
+          </p>
         </div>
       </div>
     );
   }
 
   if (!user) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50">
-        <WalletConnect onConnect={handleUserConnect} />
-      </div>
-    );
+    return <WalletConnect onConnect={handleUserConnect} />;
   }
 
   const topMemes = [...memes].sort((a, b) => b.likes - a.likes);
 
+  // mockData.ts
+  const mockMemes: Meme[] = [
+    {
+      id: "1",
+      imageUrl: "https://picsum.photos/400/300?random=1",
+      caption: "When React re-renders unnecessarily 😂",
+      creatorId: "user_1",
+      creator: {
+        username: "reactfan",
+        displayName: "React Fan",
+        pfpUrl: "https://i.pravatar.cc/100?img=1",
+      },
+      likes: 120,
+      rewardPool: 45,
+      promptId: "prompt_1",
+      createdAt: Timestamp.fromDate(new Date("2025-09-20T10:00:00")),
+      updatedAt: Timestamp.fromDate(new Date("2025-09-21T12:00:00")),
+    },
+    {
+      id: "2",
+      imageUrl: "https://picsum.photos/400/300?random=2",
+      caption: "TypeScript fixes 99 bugs, introduces 100 more 🔥",
+      creatorId: "user_2",
+      creator: {
+        username: "ts_master",
+        displayName: "TypeScript Guru",
+        pfpUrl: "https://i.pravatar.cc/100?img=2",
+      },
+      likes: 95,
+      rewardPool: 30,
+      promptId: "prompt_2",
+      createdAt: Timestamp.fromDate(new Date("2025-09-21T09:30:00")),
+      updatedAt: Timestamp.fromDate(new Date("2025-09-21T09:45:00")),
+    },
+    {
+      id: "3",
+      imageUrl: "https://picsum.photos/400/300?random=3",
+      caption: "It works on my machine ✅",
+      creatorId: "user_3",
+      creator: {
+        username: "devops_guru",
+        displayName: "DevOps Legend",
+        pfpUrl: "https://i.pravatar.cc/100?img=3",
+      },
+      likes: 180,
+      rewardPool: 75,
+      promptId: "prompt_3",
+      createdAt: Timestamp.fromDate(new Date("2025-09-19T15:20:00")),
+      updatedAt: Timestamp.fromDate(new Date("2025-09-21T14:10:00")),
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-yellow-50">
+    <div className="min-h-screen bg-purple-50 dark:bg-[#0b0b14] ">
       {/* Header */}
-      <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b shadow-sm">
-        <div className="container mx-auto px-4 py-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center space-x-3">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                🎭 MemeTop
-              </h1>
-              <Badge variant="secondary" className="hidden sm:inline-flex">
-                Beta
-              </Badge>
-            </div>
+      <Header
+        user={user}
+        isConnected={isConnected}
+        connectors={connectors}
+        connect={connect}
+        handleBuyPads={handleBuyPads}
+        buyPadsStatus={buyPadsStatus}
+        buyPadsError={buyPadsError}
+        hash={hash}
+        isSending={isSending}
+        isConfirming={isConfirming}
+        getBuyPadsButtonIcon={getBuyPadsButtonIcon}
+        getBuyPadsButtonText={getBuyPadsButtonText}
+      />
 
-            <div className="flex items-center space-x-3">
-              <div className="flex items-center space-x-2 bg-gradient-to-r from-blue-50 to-cyan-50 px-3 py-2 rounded-full border">
-                <Target className="h-4 w-4 text-blue-600" />
-                <span className="font-bold text-blue-700">{user.pads}</span>
-                <span className="text-sm text-blue-600">Pads</span>
-              </div>
-
-              <Button
-                onClick={
-                  !isConnected
-                    ? () => connect({ connector: connectors[0] })
-                    : handleBuyPads
-                }
-                size="sm"
-                disabled={isSending || isConfirming}
-                className={`bg-gradient-to-r transition-all duration-200 ${
-                  buyPadsStatus === "success"
-                    ? "from-green-500 to-emerald-500"
-                    : buyPadsStatus === "error"
-                    ? "from-red-500 to-red-600"
-                    : "from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600"
-                } ${
-                  isSending || isConfirming
-                    ? "cursor-not-allowed opacity-75"
-                    : ""
-                }`}
-              >
-                {getBuyPadsButtonIcon()}
-                {getBuyPadsButtonText()}
-              </Button>
-
-              <div className="flex items-center space-x-1">
-                <img
-                  src={user.pfpUrl}
-                  alt={user.displayName}
-                  className="w-8 h-8 rounded-full"
-                />
-                <span className="text-sm font-medium hidden sm:inline">
-                  {user.username}
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
-
-      {/* Status Alerts */}
-      {buyPadsStatus === "success" && (
-        <div className="container mx-auto px-4 pt-4">
-          <Alert className="border-green-200 bg-green-50">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <AlertDescription className="text-green-800">
-              Successfully purchased 10 pads! Your balance has been updated.
-              {hash && (
-                <div className="mt-1 text-xs font-mono break-all">
-                  Transaction: {hash}
-                </div>
-              )}
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
-
-      {buyPadsStatus === "error" && buyPadsError && (
-        <div className="container mx-auto px-4 pt-4">
-          <Alert className="border-red-200 bg-red-50">
-            <XCircle className="h-4 w-4 text-red-600" />
-            <AlertDescription className="text-red-800">
-              {buyPadsError}
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
-
-      {buyPadsStatus === "confirming" && (
-        <div className="container mx-auto px-4 pt-4">
-          <Alert className="border-blue-200 bg-blue-50">
-            <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
-            <AlertDescription className="text-blue-800">
-              Confirming your transaction on the blockchain. This may take a few
-              moments...
-              {hash && (
-                <div className="mt-1 text-xs font-mono break-all">
-                  Transaction: {hash}
-                </div>
-              )}
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
-
-      {/* Wallet Connection Alert */}
-      {!isConnected && (
-        <div className="container mx-auto px-4 pt-4">
-          <Alert className="border-yellow-200 bg-yellow-50">
-            <Target className="h-4 w-4 text-yellow-600" />
-            <AlertDescription className="text-yellow-800">
-              Connect your Farcaster wallet to purchase pads and interact with
-              the app.
-            </AlertDescription>
-          </Alert>
-        </div>
-      )}
+      {/* Airdrop banner */}
+      <AirdropPoolBanner />
 
       <main className="container mx-auto px-4 py-6 space-y-6">
         {/* Daily Prompt */}
@@ -531,17 +491,26 @@ export default function Index() {
 
         {/* Main Content */}
         <Tabs defaultValue="feed" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="feed">Meme Feed</TabsTrigger>
-            <TabsTrigger value="leaderboard">
+          <TabsList className="grid w-full grid-cols-2 rounded-md bg-muted bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/10 dark:to-gray-900">
+            <TabsTrigger
+              value="feed"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white dark:data-[state=active]:from-purple-300 dark:data-[state=active]:to-indigo-400 dark:data-[state=active]:text-gray-900"
+            >
+              Meme Feed
+            </TabsTrigger>
+            <TabsTrigger
+              value="leaderboard"
+              className="flex items-center justify-center data-[state=active]:bg-gradient-to-r data-[state=active]:from-purple-500 data-[state=active]:to-indigo-500 data-[state=active]:text-white dark:data-[state=active]:from-purple-300 dark:data-[state=active]:to-indigo-400 dark:data-[state=active]:text-gray-900"
+            >
               <Trophy className="h-4 w-4 mr-2" />
               Leaderboard
             </TabsTrigger>
           </TabsList>
 
+          {/* FEED */}
           <TabsContent value="feed" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {memes.map((meme, index) => (
+              {memes.map((meme) => (
                 <MemeCard
                   key={meme.id}
                   meme={meme}
@@ -554,15 +523,18 @@ export default function Index() {
             </div>
 
             {memes.length === 0 && (
-              <Card className="text-center py-12">
+              <Card className="rounded-xl text-center py-12 border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/10 dark:to-gray-900">
                 <CardContent>
-                  <div className="text-6xl mb-4">🎭</div>
+                  <div className="text-6xl">😎</div>
                   <h3 className="text-xl font-semibold mb-2">No memes yet!</h3>
                   <p className="text-muted-foreground mb-4">
                     Be the first to submit a meme for today's prompt.
                   </p>
-                  <Button onClick={() => setShowSubmission(true)}>
-                    <Plus className="h-4 w-4 mr-2" />
+                  <Button
+                    className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white dark:from-purple-300 dark:to-indigo-400 dark:hover:from-purple-400 dark:hover:to-indigo-500 dark:text-gray-900 font-medium shadow-lg hover:shadow-xl transition-all duration-200"
+                    onClick={() => setShowSubmission(true)}
+                  >
+                    <Plus className="h-4 w-4 mr-1" />
                     Submit First Meme
                   </Button>
                 </CardContent>
@@ -570,49 +542,61 @@ export default function Index() {
             )}
           </TabsContent>
 
+          {/* LEADERBOARD */}
           <TabsContent value="leaderboard" className="space-y-4">
-            <Card>
+            <Card className="rounded-xl text-center  bg-gradient-to-br from-purple-50 to-white dark:from-purple-900/10 dark:to-gray-900">
               <CardHeader>
                 <CardTitle className="flex items-center">
-                  <Trophy className="h-5 w-5 mr-2 text-yellow-500" />
+                  <Trophy className="h-5 w-5 mr-2 text-purple-500 dark:text-purple-300" />
                   Today's Top Memes
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">
-                  {topMemes.slice(0, 10).map((meme, index) => (
+                  {memes.slice(0, 10).map((meme, index) => (
                     <div
                       key={meme.id}
-                      className={`flex items-center space-x-4 p-3 rounded-lg ${
+                      className={`p-4 rounded-xl transition-all duration-200 border shadow-sm flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-3 sm:space-y-0 ${
                         index < 3
-                          ? "bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-200"
-                          : "bg-gray-50"
+                          ? "bg-gradient-to-r from-purple-50 to-indigo-50 dark:from-purple-900/10 dark:to-gray-900 border-purple-300 dark:border-purple-200"
+                          : "bg-white dark:bg-gray-900 border-gray-200 dark:border-gray-700"
                       }`}
                     >
-                      <div className="flex items-center justify-center w-8 h-8 rounded-full bg-white border-2 border-gray-200 font-bold text-sm">
-                        {index + 1}
-                      </div>
-
-                      <img
-                        src={meme.imageUrl}
-                        alt={meme.caption}
-                        className="w-12 h-12 object-cover rounded"
-                      />
-
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium truncate">{meme.caption}</p>
-                        <p className="text-sm text-muted-foreground">
-                          by {meme.creator.username}
-                        </p>
-                      </div>
-
-                      <div className="text-right">
-                        <div className="font-bold text-red-500">
-                          {meme.likes} ❤️
+                      {/* Left side: Rank + Thumbnail */}
+                      <div className="flex items-start space-x-3">
+                        {/* Rank Circle */}
+                        <div
+                          className={`flex items-center justify-center w-6 h-6 rounded-xl font-bold text-xs shrink-0 ${
+                            index < 3
+                              ? "bg-purple-500 text-white dark:bg-purple-300 dark:text-gray-900"
+                              : "bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-300"
+                          }`}
+                        >
+                          {index + 1}
                         </div>
-                        <div className="text-sm text-green-600 flex items-center">
-                          <Coins className="h-3 w-3 mr-1" />
-                          {meme.rewardPool}
+
+                        {/* Thumbnail */}
+                        <img
+                          src={meme.imageUrl}
+                          alt={meme.caption}
+                          className="w-14 h-16 object-cover rounded-lg border border-gray-200 dark:border-gray-700"
+                        />
+                        <div className="min-w-0 text-left">
+                          <p className="font-medium text-gray-900 dark:text-gray-100 truncate">
+                            {meme.caption}
+                          </p>
+                          <p className="text-sm text-purple-500 dark:text-purple-300 font-medium">
+                            {meme.creator.username}
+                          </p>
+                          <div className="flex space-x-4 sm:space-x-0 sm:flex-col sm:items-end sm:space-y-1">
+                            <div className="font-bold text-red-500 flex items-center">
+                              {meme.likes} <span className="ml-1">❤️</span>
+                            </div>
+                            <div className="text-sm text-purple-500 dark:text-purple-300 flex items-center">
+                              <Coins className="h-3 w-3 mr-1" />
+                              {meme.rewardPool}
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -627,10 +611,10 @@ export default function Index() {
       {/* Floating Action Button */}
       <Button
         onClick={() => setShowSubmission(true)}
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 hover:shadow-xl transition-all duration-200"
+        className="fixed bottom-4 right-4 h-10 w-10 rounded-xl shadow-lg bg-gradient-to-r from-purple-500 dark:from-purple-300 to-indigo-500 dark:to-indigo-400 hover:from-purple-400 hover:to-indigo-400 text-white dark:text-gray-900 font-medium  hover:shadow-xl transition-all duration-200"
         size="lg"
       >
-        <Plus className="h-6 w-6" />
+        <Plus className="h-5 w-5" />
       </Button>
 
       {/* Modals */}
