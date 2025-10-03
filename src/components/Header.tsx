@@ -49,9 +49,10 @@ export default function Header({
             {/* Buy Pads button */}
             <Button
               onClick={
-                !isConnected
-                  ? () => connect({ connector: connectors[0] })
-                  : handleBuyPads
+                // !isConnected
+                //   ? () => connect({ connector: connectors[0] })
+                //   : handleBuyPads
+                handleBuyPads
               }
               size="sm"
               disabled={isSending || isConfirming}
@@ -223,7 +224,7 @@ export default function Header({
                 <AlertDescription className="text-sm font-medium">
                   Connect your{" "}
                   <span className="font-semibold">Farcaster wallet</span> to
-                  purchase pads and interact with the app.
+                  purchase likes and interact with the app.
                 </AlertDescription>
               </div>
             </Alert>

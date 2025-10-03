@@ -103,7 +103,7 @@ export default function ShareModal({
               <div className="flex items-center justify-center space-x-2 mb-2">
                 <Gift className="h-5 w-5 text-green-600 dark:text-green-400" />
                 <span className="font-semibold text-green-700 dark:text-green-300">
-                  Earn +0.2 Pads for sharing!
+                  Earn +0.2 Likes for sharing!
                 </span>
                 <span className="text-xl">🎯</span>
               </div>

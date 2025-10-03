@@ -188,7 +188,7 @@ export default function MemeSubmission({
             <ul className="text-xs text-purple-600 dark:text-purple-300 mt-1 space-y-1">
               <li>• Make it relatable to today’s prompt</li>
               <li>• Keep it funny and engaging</li>
-              <li>• Reach 1000 Pads to earn 60% rewards!</li>
+              <li>• Reach 1,000 Likes to earn 60% rewards!</li>
             </ul>
           </div>
 

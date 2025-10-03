@@ -39,6 +39,7 @@ import { ThemeToggle } from "@/components/ThemeToggle";
 import Header from "@/components/Header";
 import AirdropPoolBanner from "@/components/AirdropPool";
 import { Timestamp } from "firebase/firestore";
+import BuyLikesModal from "@/components/BuyLikesModal";
 
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
@@ -47,6 +48,7 @@ export default function Index() {
   const [selectedMeme, setSelectedMeme] = useState<Meme | null>(null);
   const [showComments, setShowComments] = useState(false);
   const [showShare, setShowShare] = useState(false);
+  const [showBuyLikes, setShowBuyLikes] = useState(false);
   const [showSubmission, setShowSubmission] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -251,6 +253,10 @@ export default function Index() {
     }
   };
 
+  const openBuyLikesModal = () => {
+    setShowBuyLikes(true);
+  };
+
   const handlePadsPurchaseConfirmed = async () => {
     if (!user) return;
 
@@ -376,7 +382,7 @@ export default function Index() {
       case "success":
         return "Success!";
       default:
-        return "Buy Pads";
+        return "Buy Likes";
     }
   };
 
@@ -472,7 +478,7 @@ export default function Index() {
         isConnected={isConnected}
         connectors={connectors}
         connect={connect}
-        handleBuyPads={handleBuyPads}
+        handleBuyPads={openBuyLikesModal}
         buyPadsStatus={buyPadsStatus}
         buyPadsError={buyPadsError}
         hash={hash}
@@ -618,6 +624,14 @@ export default function Index() {
       </Button>
 
       {/* Modals */}
+      <BuyLikesModal
+        isOpen={showBuyLikes}
+        onClose={() => setShowBuyLikes(false)}
+        onPurchase={handleBuyPads}
+        ethToTokenRate={100}
+        tokenToPadsRate={1}
+      />
+
       <CommentSection
         meme={selectedMeme}
         currentUser={user}
