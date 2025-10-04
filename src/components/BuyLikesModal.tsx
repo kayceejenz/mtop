@@ -75,7 +75,7 @@ export default function BuyLikesModal({
         <div className="space-y-6">
           {/* Bundle Selection */}
           <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-2 gap-4">
               {BUNDLE_PACKAGES.map((bundle) => (
                 <div
                   key={bundle.likes}
@@ -141,7 +141,7 @@ export default function BuyLikesModal({
           </div>
 
           {/* Selected Package Summary */}
-          <div className="bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/20 p-6 rounded-xl border border-purple-200 dark:border-purple-700 shadow-sm">
+          <div className="hidden sm:block bg-gradient-to-r from-purple-50 to-pink-50 dark:from-purple-900/30 dark:to-pink-900/20 p-6 rounded-xl border border-purple-200 dark:border-purple-700 shadow-sm">
             <div className="text-center space-y-3">
               <h4 className="text-lg font-semibold text-gray-900 dark:text-gray-100">
                 Your Purchase
