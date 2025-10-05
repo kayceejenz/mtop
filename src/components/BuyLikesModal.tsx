@@ -40,7 +40,7 @@ const BUNDLE_PACKAGES = [
     likes: 100,
     usdcPrice: 4.99,
     popular: false,
-    savings: "46%",
+    savings: "60%",
   },
 ];
 

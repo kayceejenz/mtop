@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { CheckCircle, Loader2, Menu, Wallet, X, XCircle } from "lucide-react";
+import {
+  CheckCircle,
+  Coins,
+  Loader2,
+  Menu,
+  Wallet,
+  X,
+  XCircle,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { ThemeToggle } from "./ThemeToggle";
@@ -108,11 +116,17 @@ export default function Header({
         {/* Mobile Menu */}
         <div className="md:hidden mt-3 space-y-3 border-t border-gray-200 dark:border-gray-800 pt-3">
           {/* Pads counter */}
-          <div className="flex items-center gap-2 p-2 pr-4 rounded-md border border-gray-200 dark:border-gray-700">
-            ⚡
-            <span className="font-semibold text-md text-gray-800 dark:text-gray-100">
-              {user.pads} Likes
-            </span>
+          <div className="flex gap-4 items-center justify-between">
+            <div className="flex items-center gap-2 p-2 pr-4 rounded-md border border-gray-200 dark:border-gray-700">
+              ⚡
+              <span className="font-semibold text-md text-gray-800 dark:text-gray-100">
+                {user.pads} Likes
+              </span>
+            </div>
+            <div className="flex items-center text-sm font-medium text-purple-600 dark:text-purple-300">
+              <Coins className="w-4 h-4 mr-1" />
+              10 tokens
+            </div>
           </div>
 
           {/* Buy Pads button */}

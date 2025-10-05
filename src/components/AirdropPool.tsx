@@ -13,7 +13,7 @@ import { Gift, Clock, Users, TrendingUp, X } from "lucide-react";
 export function AirdropPoolBanner() {
   const [timeLeft, setTimeLeft] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [poolAmount, setPoolAmount] = useState(10000); // Starting pool amount
+  const [poolAmount, setPoolAmount] = useState(10500); // Starting pool amount
   const [userCount, setUserCount] = useState(0); // Track user count for pool increases
 
   // Simulate user growth (in a real app, this would come from your backend)
@@ -162,7 +162,7 @@ export function AirdropPoolModal({
   isOpen,
   onClose,
   timer,
-  initialPool = 10000,
+  initialPool = 10500,
   initialUsers = 1000,
   currentUsers = 1250,
   rewardIncrement = 100,
@@ -175,7 +175,8 @@ export function AirdropPoolModal({
   useEffect(() => {
     const userIncrease = currentUsers - initialUsers;
     const thresholdCount = Math.floor(userIncrease / userThreshold);
-    const newPoolAmount = initialPool + thresholdCount * rewardIncrement;
+    // const newPoolAmount = initialPool + thresholdCount * rewardIncrement;
+    const newPoolAmount = initialPool;
     setPoolAmount(newPoolAmount);
   }, [currentUsers, initialUsers, initialPool, rewardIncrement, userThreshold]);
 
