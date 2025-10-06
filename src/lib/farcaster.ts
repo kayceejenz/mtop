@@ -16,7 +16,7 @@ export interface FarcasterUser {
 export interface TransactionParams {
   to: `0x${string}`;
   data: `0x${string}`;
-  value?: `0x${string}`;
+  value?: bigint;
 }
 
 class FarcasterService {
@@ -28,10 +28,8 @@ class FarcasterService {
     try {
       await sdk.actions.ready();
       this.isInitialized = true;
-      console.log("Farcaster SDK initialized successfully");
     } catch (error) {
       console.error("Failed to initialize Farcaster SDK:", error);
-      // Fallback for development/testing
       this.isInitialized = false;
     }
   }
@@ -42,12 +40,11 @@ class FarcasterService {
 
   /**
    * Prepares USDC transfer transaction parameters for Wagmi
-   * This function creates the transaction data but doesn't send it
-   * The actual sending should be done using Wagmi's useSendTransaction hook
+   * Use this with Wagmi's useSendTransaction or useWriteContract hook
    */
   preparePadsPurchaseTransaction(amount: number): TransactionParams {
     const PRICE_PER_PAD = 0.5; // $0.50 per pad
-    const totalCost = amount * PRICE_PER_PAD; // e.g. 10 * 0.5 = 5.0 USDC
+    const totalCost = amount * PRICE_PER_PAD;
 
     if (!CENTRAL_WALLET_ADDRESS) {
       throw new Error("Central wallet address not configured");
@@ -66,8 +63,45 @@ class FarcasterService {
     return {
       to: USDC_CONTRACT as `0x${string}`,
       data: data,
-      value: "0x0", // No ETH value for ERC20 transfer
+      value: BigInt(0), // No ETH value for ERC20 transfer
     };
+  }
+
+  /**
+   * Get transaction parameters for batch operations
+   * Use with Wagmi's useSendCalls for batch transactions
+   */
+  prepareBatchPadsPurchase(amounts: number[]): TransactionParams[] {
+    if (!CENTRAL_WALLET_ADDRESS) {
+      throw new Error("Central wallet address not configured");
+    }
+
+    const PRICE_PER_PAD = 0.5;
+
+    return amounts.map((amount) => {
+      const totalCost = amount * PRICE_PER_PAD;
+      const costInUnits = parseUnits(totalCost.toString(), USDC_DECIMALS);
+
+      const data = encodeFunctionData({
+        abi: erc20Abi,
+        functionName: "transfer",
+        args: [CENTRAL_WALLET_ADDRESS as `0x${string}`, costInUnits],
+      });
+
+      return {
+        to: USDC_CONTRACT as `0x${string}`,
+        data: data,
+        value: BigInt(0),
+      };
+    });
+  }
+
+  /**
+   * Calculate total cost for pads
+   */
+  calculatePadsCost(amount: number): number {
+    const PRICE_PER_PAD = 0.5;
+    return amount * PRICE_PER_PAD;
   }
 
   async getUser(): Promise<FarcasterUser | null> {
@@ -114,21 +148,10 @@ class FarcasterService {
     return this.isInitialized;
   }
 
-  // Helper method to get capabilities
-  async getCapabilities(): Promise<string[]> {
-    try {
-      return await sdk.getCapabilities();
-    } catch (error) {
-      console.warn("Failed to get capabilities:", error);
-      return [];
-    }
-  }
-
   // Haptic feedback helpers
   async triggerSuccessHaptic() {
     try {
-      const capabilities = await this.getCapabilities();
-      if (capabilities.includes("haptics.impactOccurred")) {
+      if (sdk.haptics?.impactOccurred) {
         await sdk.haptics.impactOccurred("medium");
       }
     } catch (error) {
@@ -138,8 +161,7 @@ class FarcasterService {
 
   async triggerErrorHaptic() {
     try {
-      const capabilities = await this.getCapabilities();
-      if (capabilities.includes("haptics.notificationOccurred")) {
+      if (sdk.haptics?.notificationOccurred) {
         await sdk.haptics.notificationOccurred("error");
       }
     } catch (error) {
