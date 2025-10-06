@@ -15,6 +15,13 @@ export interface TransactionParams {
   args: [`0x${string}`, bigint];
 }
 
+export interface BalanceCheckParams {
+  address: `0x${string}`;
+  abi: any;
+  functionName: "balanceOf";
+  args: [`0x${string}`];
+}
+
 class FarcasterService {
   private isInitialized = false;
 
@@ -54,6 +61,28 @@ class FarcasterService {
       abi: erc20Abi,
       functionName: "transfer",
       args: [CENTRAL_WALLET_ADDRESS as `0x${string}`, costInUnits],
+    };
+  }
+
+  prepareBalanceCheckTransaction(
+    price: number,
+    address: `0x${string}`
+  ): BalanceCheckParams {
+    const CENTRAL_WALLET_ADDRESS = import.meta.env.VITE_CENTRAL_WALLET_ADDRESS;
+    const USDC_CONTRACT = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+    const USDC_DECIMALS = 6;
+
+    if (!CENTRAL_WALLET_ADDRESS) {
+      throw new Error("Central wallet address not configured");
+    }
+
+    const costInUnits = parseUnits(price.toString(), USDC_DECIMALS);
+
+    return {
+      address: USDC_CONTRACT as `0x${string}`,
+      abi: erc20Abi,
+      functionName: "balanceOf",
+      args: [address as `0x${string}`],
     };
   }
 

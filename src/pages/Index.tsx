@@ -27,11 +27,11 @@ import {
   Trophy,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { waitForTransactionReceipt, writeContract } from "viem/actions";
+import { formatUnits } from "viem";
 import {
   useAccount,
   useConnect,
-  useSendTransaction,
+  useReadContract,
   useWaitForTransactionReceipt,
   useWriteContract,
   type BaseError,
@@ -227,13 +227,30 @@ export default function Index() {
         throw new Error("This feature requires opening the app in Farcaster");
       }
 
+      const balanceCheckTx = farcasterService.prepareBalanceCheckTransaction(
+        price,
+        address as `0x${string}`
+      );
+
+      const { data: balance } = useReadContract(balanceCheckTx);
+
+      const userBalance = Number(formatUnits(balance as bigint, 6));
+      const totalCost = price;
+
+      if (userBalance < totalCost) {
+        setBuyPadsError(
+          `Insufficient USDC balance. You need at least ${totalCost} USDC.`
+        );
+        setBuyPadsStatus("error");
+        farcasterService.triggerErrorHaptic();
+        return;
+      }
+
       const txParams = farcasterService.preparePadsPurchaseTransaction(price);
 
       if (!txParams) {
         throw new Error("Failed to prepare transaction parameters");
       }
-
-      console.log("Prepared transaction params:", txParams);
 
       // Send transaction using Wagmi
       writeContract(txParams as any);
