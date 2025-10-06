@@ -2,10 +2,6 @@ import { sdk } from "@farcaster/miniapp-sdk";
 import { encodeFunctionData, parseUnits } from "viem";
 import { erc20Abi } from "viem";
 
-const CENTRAL_WALLET_ADDRESS = import.meta.env.VITE_CENTRAL_WALLET_ADDRESS;
-const USDC_CONTRACT = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-const USDC_DECIMALS = 6;
-
 export interface FarcasterUser {
   fid: number;
   username: string;
@@ -43,8 +39,8 @@ class FarcasterService {
    * Use this with Wagmi's useSendTransaction or useWriteContract hook
    */
   preparePadsPurchaseTransaction(price: number): TransactionParams {
-    const CENTRAL_WALLET_ADDRESS = process.env.CENTRAL_WALLET_ADDRESS;
-    const USDC_CONTRACT = process.env.USDC_CONTRACT;
+    const CENTRAL_WALLET_ADDRESS = import.meta.env.VITE_CENTRAL_WALLET_ADDRESS;
+    const USDC_CONTRACT = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
     const USDC_DECIMALS = 6;
 
     if (!CENTRAL_WALLET_ADDRESS) {
