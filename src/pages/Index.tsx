@@ -36,6 +36,7 @@ import {
   useWriteContract,
   type BaseError,
 } from "wagmi";
+import { erc20Abi } from "viem";
 
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
@@ -71,6 +72,15 @@ export default function Index() {
     isError: isTransactionError,
   } = useWaitForTransactionReceipt({
     hash,
+  });
+  const USDC_CONTRACT = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+  const USDC_DECIMALS = 6;
+  const { data: balanceData, refetch: refetchBalance } = useReadContract({
+    address: USDC_CONTRACT,
+    abi: erc20Abi,
+    functionName: "balanceOf",
+    args: [address ?? "0x0000000000000000000000000000000000000000"],
+    query: { enabled: !!address },
   });
 
   // Auto-connect to Farcaster wallet on load
@@ -226,16 +236,7 @@ export default function Index() {
       if (!farcasterService.isInFarcaster()) {
         throw new Error("This feature requires opening the app in Farcaster");
       }
-      console.log("Preparing transaction...", address);
-      const balanceCheckTx = farcasterService.prepareBalanceCheckTransaction(
-        address as `0x${string}`
-      );
-      console.log("Balance check tx:", balanceCheckTx);
-
-      const { data: balance } = useReadContract(balanceCheckTx);
-
-      console.log("User USDC balance:", balance);
-      const userBalance = Number(formatUnits(balance as bigint, 6));
+      const userBalance = Number(formatUnits(balanceData ?? 0n, USDC_DECIMALS));
       const totalCost = price;
 
       if (userBalance < totalCost) {
