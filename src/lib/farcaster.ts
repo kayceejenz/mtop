@@ -64,10 +64,7 @@ class FarcasterService {
     };
   }
 
-  prepareBalanceCheckTransaction(
-    price: number,
-    address: `0x${string}`
-  ): BalanceCheckParams {
+  prepareBalanceCheckTransaction(address: `0x${string}`): BalanceCheckParams {
     const CENTRAL_WALLET_ADDRESS = import.meta.env.VITE_CENTRAL_WALLET_ADDRESS;
     const USDC_CONTRACT = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
     const USDC_DECIMALS = 6;
@@ -75,8 +72,6 @@ class FarcasterService {
     if (!CENTRAL_WALLET_ADDRESS) {
       throw new Error("Central wallet address not configured");
     }
-
-    const costInUnits = parseUnits(price.toString(), USDC_DECIMALS);
 
     return {
       address: USDC_CONTRACT as `0x${string}`,

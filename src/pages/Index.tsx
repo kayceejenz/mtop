@@ -226,14 +226,15 @@ export default function Index() {
       if (!farcasterService.isInFarcaster()) {
         throw new Error("This feature requires opening the app in Farcaster");
       }
-
+      console.log("Preparing transaction...", address);
       const balanceCheckTx = farcasterService.prepareBalanceCheckTransaction(
-        price,
         address as `0x${string}`
       );
+      console.log("Balance check tx:", balanceCheckTx);
 
       const { data: balance } = useReadContract(balanceCheckTx);
 
+      console.log("User USDC balance:", balance);
       const userBalance = Number(formatUnits(balance as bigint, 6));
       const totalCost = price;
 
