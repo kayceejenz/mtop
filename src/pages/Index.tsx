@@ -233,6 +233,8 @@ export default function Index() {
         throw new Error("Failed to prepare transaction parameters");
       }
 
+      console.log("Prepared transaction params:", txParams);
+
       // Send transaction using Wagmi
       writeContract(txParams as any);
     } catch (error) {
