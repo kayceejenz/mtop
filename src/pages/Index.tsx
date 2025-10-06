@@ -1,45 +1,41 @@
-import { useState, useEffect } from "react";
+import AirdropPoolBanner from "@/components/AirdropPool";
+import BuyLikesModal from "@/components/BuyLikesModal";
+import CommentSection from "@/components/CommentSection";
+import DailyPrompt from "@/components/DailyPrompt";
+import Header from "@/components/Header";
+import MemeCard from "@/components/MemeCard";
+import MemeSubmission from "@/components/MemeSubmission";
+import ShareModal from "@/components/ShareModal";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import WalletConnect from "@/components/WalletConnect";
+import { farcasterService } from "@/lib/farcaster";
 import {
-  Plus,
-  Coins,
-  Trophy,
-  Target,
-  ShoppingCart,
+  DailyPrompt as DailyPromptType,
+  firebaseService,
+  Meme,
+  User,
+} from "@/lib/firebaseService";
+import { Timestamp } from "firebase/firestore";
+import {
   CheckCircle,
-  XCircle,
+  Coins,
   Loader2,
-  Wallet,
+  Plus,
+  ShoppingCart,
+  Trophy,
 } from "lucide-react";
+import { useEffect, useState } from "react";
+import { waitForTransactionReceipt, writeContract } from "viem/actions";
 import {
   useAccount,
   useConnect,
   useSendTransaction,
   useWaitForTransactionReceipt,
+  useWriteContract,
   type BaseError,
 } from "wagmi";
-import WalletConnect from "@/components/WalletConnect";
-import DailyPrompt from "@/components/DailyPrompt";
-import MemeCard from "@/components/MemeCard";
-import CommentSection from "@/components/CommentSection";
-import ShareModal from "@/components/ShareModal";
-import MemeSubmission from "@/components/MemeSubmission";
-import {
-  firebaseService,
-  User,
-  Meme,
-  DailyPrompt as DailyPromptType,
-} from "@/lib/firebaseService";
-import { farcasterService } from "@/lib/farcaster";
-import { ThemeToggle } from "@/components/ThemeToggle";
-import Header from "@/components/Header";
-import AirdropPoolBanner from "@/components/AirdropPool";
-import { Timestamp } from "firebase/firestore";
-import BuyLikesModal from "@/components/BuyLikesModal";
 
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
@@ -51,6 +47,7 @@ export default function Index() {
   const [showBuyLikes, setShowBuyLikes] = useState(false);
   const [showSubmission, setShowSubmission] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [likeCountForPurchased, setLikeCountForPurchased] = useState(0);
 
   // Pad buying states
   const [buyPadsStatus, setBuyPadsStatus] = useState<
@@ -65,8 +62,8 @@ export default function Index() {
     data: hash,
     error: sendError,
     isPending: isSending,
-    sendTransaction,
-  } = useSendTransaction();
+    writeContract,
+  } = useWriteContract();
 
   const {
     isLoading: isConfirming,
@@ -213,7 +210,7 @@ export default function Index() {
     }
   };
 
-  const handleBuyPads = async () => {
+  const handleBuyPads = async (likes: number, price: number) => {
     if (!user || !isConnected) {
       setBuyPadsError("Please connect your wallet first");
       return;
@@ -224,19 +221,20 @@ export default function Index() {
     try {
       setBuyPadsStatus("pending");
       setBuyPadsError(null);
+      setLikeCountForPurchased(likes);
 
       if (!farcasterService.isInFarcaster()) {
         throw new Error("This feature requires opening the app in Farcaster");
       }
 
-      const PADS_TO_BUY = 10;
+      const txParams = farcasterService.preparePadsPurchaseTransaction(price);
 
-      // Prepare the transaction using the service
-      const txParams =
-        farcasterService.preparePadsPurchaseTransaction(PADS_TO_BUY);
+      if (!txParams) {
+        throw new Error("Failed to prepare transaction parameters");
+      }
 
       // Send transaction using Wagmi
-      sendTransaction(txParams);
+      writeContract(txParams as any);
     } catch (error) {
       console.error("Failed to prepare transaction:", error);
 
@@ -261,7 +259,7 @@ export default function Index() {
     if (!user) return;
 
     try {
-      const PADS_TO_BUY = 10;
+      const PADS_TO_BUY = likeCountForPurchased;
       await firebaseService.buyPads(user.id, PADS_TO_BUY);
       await handleRefresh();
 
@@ -628,8 +626,6 @@ export default function Index() {
         isOpen={showBuyLikes}
         onClose={() => setShowBuyLikes(false)}
         onPurchase={handleBuyPads}
-        ethToTokenRate={100}
-        tokenToPadsRate={1}
       />
 
       <CommentSection

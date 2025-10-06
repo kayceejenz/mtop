@@ -12,11 +12,11 @@ export interface FarcasterUser {
   displayName: string;
   pfpUrl: string;
 }
-
 export interface TransactionParams {
-  to: `0x${string}`;
-  data: `0x${string}`;
-  value?: bigint;
+  address: `0x${string}`;
+  abi: any;
+  functionName: "transfer";
+  args: [`0x${string}`, bigint];
 }
 
 class FarcasterService {
@@ -42,66 +42,23 @@ class FarcasterService {
    * Prepares USDC transfer transaction parameters for Wagmi
    * Use this with Wagmi's useSendTransaction or useWriteContract hook
    */
-  preparePadsPurchaseTransaction(amount: number): TransactionParams {
-    const PRICE_PER_PAD = 0.5; // $0.50 per pad
-    const totalCost = amount * PRICE_PER_PAD;
+  preparePadsPurchaseTransaction(price: number): TransactionParams {
+    const CENTRAL_WALLET_ADDRESS = process.env.CENTRAL_WALLET_ADDRESS;
+    const USDC_CONTRACT = process.env.USDC_CONTRACT;
+    const USDC_DECIMALS = 6;
 
     if (!CENTRAL_WALLET_ADDRESS) {
       throw new Error("Central wallet address not configured");
     }
 
-    // Convert to proper units (USDC has 6 decimals)
-    const costInUnits = parseUnits(totalCost.toString(), USDC_DECIMALS);
+    const costInUnits = parseUnits(price.toString(), USDC_DECIMALS);
 
-    // Encode the transfer function call
-    const data = encodeFunctionData({
+    return {
+      address: USDC_CONTRACT as `0x${string}`,
       abi: erc20Abi,
       functionName: "transfer",
       args: [CENTRAL_WALLET_ADDRESS as `0x${string}`, costInUnits],
-    });
-
-    return {
-      to: USDC_CONTRACT as `0x${string}`,
-      data: data,
-      value: BigInt(0), // No ETH value for ERC20 transfer
     };
-  }
-
-  /**
-   * Get transaction parameters for batch operations
-   * Use with Wagmi's useSendCalls for batch transactions
-   */
-  prepareBatchPadsPurchase(amounts: number[]): TransactionParams[] {
-    if (!CENTRAL_WALLET_ADDRESS) {
-      throw new Error("Central wallet address not configured");
-    }
-
-    const PRICE_PER_PAD = 0.5;
-
-    return amounts.map((amount) => {
-      const totalCost = amount * PRICE_PER_PAD;
-      const costInUnits = parseUnits(totalCost.toString(), USDC_DECIMALS);
-
-      const data = encodeFunctionData({
-        abi: erc20Abi,
-        functionName: "transfer",
-        args: [CENTRAL_WALLET_ADDRESS as `0x${string}`, costInUnits],
-      });
-
-      return {
-        to: USDC_CONTRACT as `0x${string}`,
-        data: data,
-        value: BigInt(0),
-      };
-    });
-  }
-
-  /**
-   * Calculate total cost for pads
-   */
-  calculatePadsCost(amount: number): number {
-    const PRICE_PER_PAD = 0.5;
-    return amount * PRICE_PER_PAD;
   }
 
   async getUser(): Promise<FarcasterUser | null> {

@@ -1,20 +1,18 @@
-import { useState } from "react";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Coins, Zap, DollarSign, Star } from "lucide-react";
+import { Star, Zap } from "lucide-react";
+import { useState } from "react";
 
 interface BuyLikesModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onPurchase: (amount: number, paymentMethod: "eth" | "usdc") => void;
-  ethToTokenRate: number;
-  tokenToPadsRate: number;
+  onPurchase: (likes: number, price: number) => void;
 }
 
 const BUNDLE_PACKAGES = [
@@ -48,18 +46,11 @@ export default function BuyLikesModal({
   isOpen,
   onClose,
   onPurchase,
-  ethToTokenRate,
-  tokenToPadsRate,
 }: BuyLikesModalProps) {
   const [selectedBundle, setSelectedBundle] = useState(BUNDLE_PACKAGES[2]); // Default to 30 likes
-  const paymentMethod = "usdc"; // Fixed to USDC only
-
-  // Calculate ETH equivalent (assuming 1 ETH = ~$2500)
-  const ethPrice = 2500; // This should ideally come from a price feed
-  const ethCost = selectedBundle.usdcPrice / ethPrice;
 
   const handlePurchase = () => {
-    onPurchase(selectedBundle.likes, paymentMethod);
+    onPurchase(selectedBundle.likes, selectedBundle.usdcPrice);
     onClose();
   };
 
