@@ -115,7 +115,7 @@ export default function Header({
             </div>
             <div className="flex items-center text-sm font-medium text-purple-600 dark:text-purple-300">
               <Coins className="w-4 h-4 mr-1" />
-              10 tokens
+              {user.tokens}
             </div>
           </div>
 

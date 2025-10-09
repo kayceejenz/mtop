@@ -125,6 +125,14 @@ class FirebaseService {
     });
   }
 
+  async updateUserTokens(userId: string, token: number): Promise<void> {
+    const docRef = doc(db, "users", userId);
+    await updateDoc(docRef, {
+      token: increment(token),
+      lastActive: serverTimestamp(),
+    });
+  }
+
   async getPads(userId: string) {
     try {
       const docRef = doc(db, "users", userId);

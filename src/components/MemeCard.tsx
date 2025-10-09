@@ -31,11 +31,11 @@ export default function MemeCard({
   useEffect(() => {
     const checkVoteStatus = async () => {
       try {
-        const voted = await firebaseService.hasUserVoted(
-          meme.id,
-          currentUser.id
-        );
-        setHasVoted(voted);
+        // const voted = await firebaseService.hasUserVoted(
+        //   meme.id,
+        //   currentUser.id
+        // );
+        setHasVoted(false);
       } catch (error) {
         console.error("Failed to check vote status:", error);
       }
@@ -68,6 +68,8 @@ export default function MemeCard({
       const success = await firebaseService.voteMeme(meme.id, currentUser.id);
 
       if (success) {
+        await firebaseService.updateUserTokens(currentUser.id, 5);
+
         setHasVoted(true);
         setConfetti(true);
         setTimeout(() => setConfetti(false), 1000);

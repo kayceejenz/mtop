@@ -71,6 +71,8 @@ export default function MemeSubmission({
         promptId: todayPrompt.id,
       });
 
+      await firebaseService.updateUserTokens(currentUser.id, 20);
+
       // Reset form
       setCaption("");
       setImageFile(null);
