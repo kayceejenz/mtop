@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { Heart, MessageCircle, Share2, Trophy, Coins } from "lucide-react";
 import { Meme, User, firebaseService } from "@/lib/firebaseService";
 
-const voteWeight = -3;
+const voteWeight = -2;
 interface MemeCardProps {
   meme: Meme;
   currentUser: User;
@@ -60,6 +60,10 @@ export default function MemeCard({
     setIsVoting(true);
 
     try {
+      const pads = await firebaseService.getPads(currentUser.id);
+      if (pads < voteWeight) {
+        return;
+      }
       await firebaseService.updateUserPads(currentUser.id, voteWeight);
       const success = await firebaseService.voteMeme(meme.id, currentUser.id);
 

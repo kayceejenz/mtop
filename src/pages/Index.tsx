@@ -17,7 +17,6 @@ import {
   Meme,
   User,
 } from "@/lib/firebaseService";
-import { Timestamp } from "firebase/firestore";
 import {
   CheckCircle,
   Coins,
@@ -27,7 +26,7 @@ import {
   Trophy,
 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { formatUnits } from "viem";
+import { erc20Abi, formatUnits } from "viem";
 import {
   useAccount,
   useConnect,
@@ -36,7 +35,6 @@ import {
   useWriteContract,
   type BaseError,
 } from "wagmi";
-import { erc20Abi } from "viem";
 
 export default function Index() {
   const [user, setUser] = useState<User | null>(null);
@@ -284,8 +282,6 @@ export default function Index() {
       await firebaseService.buyPads(user.id, PADS_TO_BUY);
       await handleRefresh();
 
-      console.log(`Successfully purchased ${PADS_TO_BUY} pads.`);
-
       // Trigger success haptic
       await farcasterService.triggerSuccessHaptic();
 
@@ -320,57 +316,19 @@ export default function Index() {
 
     try {
       // Check current shares before attempting to reward
-      const sharesToday = await firebaseService.getUserSharesToday(user.id);
-      const remaining = 2 - sharesToday;
+      const success = await firebaseService.rewardSharing(user.id);
 
-      if (remaining > 0) {
-        // User can still share, attempt to reward
-        const success = await firebaseService.rewardSharing(user.id);
+      if (success) {
+        await handleRefresh();
+        setBuyPadsStatus("success");
+        setBuyPadsError("Share reward earned!");
 
-        if (success) {
-          await handleRefresh();
-
-          // Calculate new remaining shares
-          const newRemaining = remaining - 1;
-
-          if (newRemaining > 0) {
-            // Show success message with remaining shares
-            setBuyPadsStatus("success");
-            setBuyPadsError(
-              `Share reward earned! You can share ${newRemaining} more time${
-                newRemaining === 1 ? "" : "s"
-              } today.`
-            );
-          } else {
-            // This was the last share
-            setBuyPadsStatus("success");
-            setBuyPadsError(
-              "Share reward earned! You've reached the daily sharing limit (2/2)."
-            );
-          }
-
-          // Auto-hide success message
-          setTimeout(() => {
-            setBuyPadsStatus("idle");
-            setBuyPadsError(null);
-          }, 3000);
-        } else {
-          // Reward failed (shouldn't happen if remaining > 0)
-          setBuyPadsError(
-            "Failed to process sharing reward. Please try again."
-          );
-          setBuyPadsStatus("error");
-
-          setTimeout(() => {
-            setBuyPadsStatus("idle");
-            setBuyPadsError(null);
-          }, 3000);
-        }
+        setTimeout(() => {
+          setBuyPadsStatus("idle");
+          setBuyPadsError(null);
+        }, 3000);
       } else {
-        // User has already shared twice today
-        setBuyPadsError(
-          "You've already shared twice today. Sharing limit resets tomorrow."
-        );
+        setBuyPadsError("Failed to process sharing reward. Please try again.");
         setBuyPadsStatus("error");
 
         setTimeout(() => {
@@ -434,60 +392,6 @@ export default function Index() {
   if (!user) {
     return <WalletConnect onConnect={handleUserConnect} />;
   }
-
-  const topMemes = [...memes].sort((a, b) => b.likes - a.likes);
-
-  // mockData.ts
-  const mockMemes: Meme[] = [
-    {
-      id: "1",
-      imageUrl: "https://picsum.photos/400/300?random=1",
-      caption: "When React re-renders unnecessarily 😂",
-      creatorId: "user_1",
-      creator: {
-        username: "reactfan",
-        displayName: "React Fan",
-        pfpUrl: "https://i.pravatar.cc/100?img=1",
-      },
-      likes: 120,
-      rewardPool: 45,
-      promptId: "prompt_1",
-      createdAt: Timestamp.fromDate(new Date("2025-09-20T10:00:00")),
-      updatedAt: Timestamp.fromDate(new Date("2025-09-21T12:00:00")),
-    },
-    {
-      id: "2",
-      imageUrl: "https://picsum.photos/400/300?random=2",
-      caption: "TypeScript fixes 99 bugs, introduces 100 more 🔥",
-      creatorId: "user_2",
-      creator: {
-        username: "ts_master",
-        displayName: "TypeScript Guru",
-        pfpUrl: "https://i.pravatar.cc/100?img=2",
-      },
-      likes: 95,
-      rewardPool: 30,
-      promptId: "prompt_2",
-      createdAt: Timestamp.fromDate(new Date("2025-09-21T09:30:00")),
-      updatedAt: Timestamp.fromDate(new Date("2025-09-21T09:45:00")),
-    },
-    {
-      id: "3",
-      imageUrl: "https://picsum.photos/400/300?random=3",
-      caption: "It works on my machine ✅",
-      creatorId: "user_3",
-      creator: {
-        username: "devops_guru",
-        displayName: "DevOps Legend",
-        pfpUrl: "https://i.pravatar.cc/100?img=3",
-      },
-      likes: 180,
-      rewardPool: 75,
-      promptId: "prompt_3",
-      createdAt: Timestamp.fromDate(new Date("2025-09-19T15:20:00")),
-      updatedAt: Timestamp.fromDate(new Date("2025-09-21T14:10:00")),
-    },
-  ];
 
   return (
     <div className="min-h-screen bg-purple-50 dark:bg-[#0b0b14] ">

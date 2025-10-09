@@ -1,17 +1,7 @@
-import { useState } from "react";
-import {
-  CheckCircle,
-  Coins,
-  Loader2,
-  Menu,
-  Wallet,
-  X,
-  XCircle,
-} from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { CheckCircle, Coins, Loader2, Wallet, XCircle } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
-import { hash } from "crypto";
 import { Alert, AlertDescription } from "./ui/alert";
 
 export default function Header({

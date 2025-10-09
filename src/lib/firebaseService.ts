@@ -125,6 +125,24 @@ class FirebaseService {
     });
   }
 
+  async getPads(userId: string) {
+    try {
+      const docRef = doc(db, "users", userId);
+      const userSnap = await getDoc(docRef);
+
+      if (userSnap.exists()) {
+        const userData = userSnap.data();
+        return userData.pads || 0;
+      } else {
+        console.log("No such user!");
+        return [];
+      }
+    } catch (error) {
+      console.error("Error fetching user pads:", error);
+      return [];
+    }
+  }
+
   // Daily Prompt operations
   async getTodayPrompt(): Promise<DailyPrompt | null> {
     const today = new Date().toISOString().split("T")[0];
