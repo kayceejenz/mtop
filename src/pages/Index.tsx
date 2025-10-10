@@ -206,7 +206,11 @@ export default function Index() {
   };
 
   const handleVote = async (memeId: string) => {
-    if (!user || user.pads <= 0) return;
+    if (!user || user.pads <= 0) {
+      setBuyPadsStatus("error");
+      setBuyPadsError("Insufficient Pads for like");
+      return;
+    }
 
     try {
       const success = await firebaseService.voteMeme(memeId, user.id);
