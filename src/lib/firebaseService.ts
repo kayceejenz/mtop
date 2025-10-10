@@ -235,16 +235,16 @@ class FirebaseService {
   async voteMeme(memeId: string, userId: string): Promise<boolean> {
     try {
       // Check if user already voted
-      const voteQuery = query(
-        collection(db, "votes"),
-        where("memeId", "==", memeId),
-        where("userId", "==", userId)
-      );
-      const existingVote = await getDocs(voteQuery);
+      // const voteQuery = query(
+      //   collection(db, "votes"),
+      //   where("memeId", "==", memeId),
+      //   where("userId", "==", userId)
+      // );
+      // const existingVote = await getDocs(voteQuery);
 
-      if (!existingVote.empty) {
-        return false; // Already voted
-      }
+      // if (!existingVote.empty) {
+      //   return false; // Already voted
+      // }
 
       // Create vote record
       await addDoc(collection(db, "votes"), {
