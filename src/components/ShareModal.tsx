@@ -11,7 +11,7 @@ import { firebaseService } from "@/lib/firebaseService";
 
 interface ShareModalProps {
   meme: any | null;
-  currentUser: { id: string } | null; // added currentUser typing
+  currentUser: { id: string } | null;
   isOpen: boolean;
   onClose: () => void;
   onPadsEarned: () => void;
@@ -24,12 +24,27 @@ export default function ShareModal({
   onClose,
   onPadsEarned,
 }: ShareModalProps) {
-  if (!meme) return null;
+  if (!meme || !currentUser) return null;
 
   const shareText = `Check out this hilarious meme: "${meme.caption}" 😂 Vote and earn rewards on MemeTop! 🎭🚀`;
   const shareUrl = window.location.href;
 
-  // local helper function that has access to props
+  const grantShareReward = async () => {
+    try {
+      const hasShared = await firebaseService.hasUserSharedMeme(
+        currentUser.id,
+        meme.id
+      );
+      console.log(hasShared);
+      if (!hasShared) {
+        await firebaseService.markMemeShared(currentUser.id, meme.id);
+        await firebaseService.updateUserPads(currentUser.id, 0.2);
+        onPadsEarned();
+      }
+    } catch (err) {
+      console.error("Failed to grant share reward:", err);
+    }
+  };
 
   const handleShare = (platform: string) => {
     let url = "";
@@ -55,7 +70,7 @@ export default function ShareModal({
     }
 
     window.open(url, "_blank", "width=600,height=400");
-    onPadsEarned();
+    grantShareReward();
     onClose();
   };
 
@@ -63,7 +78,7 @@ export default function ShareModal({
     try {
       await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
       alert("Link copied to clipboard! 📋");
-      onPadsEarned();
+      await grantShareReward();
       onClose();
     } catch (err) {
       console.error("Failed to copy link:", err);
@@ -78,7 +93,7 @@ export default function ShareModal({
           text: shareText,
           url: shareUrl,
         });
-        onPadsEarned();
+        await grantShareReward();
         onClose();
       } catch (err) {
         console.error("Web share failed:", err);
@@ -97,7 +112,6 @@ export default function ShareModal({
         </DialogHeader>
 
         <div className="space-y-5">
-          {/* Reward Card */}
           <Card className="border-2 border-green-300 bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/20 dark:to-emerald-900/10">
             <CardContent className="pt-4 text-center">
               <div className="flex items-center justify-center space-x-2 mb-2">
@@ -108,12 +122,11 @@ export default function ShareModal({
                 <span className="text-xl">🎯</span>
               </div>
               <p className="text-sm text-gray-600 dark:text-gray-400">
-                Help spread the fun and get rewarded!
+                Share as much as you want — reward once per meme.
               </p>
             </CardContent>
           </Card>
 
-          {/* Meme Preview */}
           <div className="relative">
             <img
               src={meme.imageUrl}
@@ -127,7 +140,6 @@ export default function ShareModal({
             </div>
           </div>
 
-          {/* Share Buttons */}
           <div className="grid grid-cols-2 gap-3">
             <Button
               onClick={() => handleShare("twitter")}
@@ -163,7 +175,6 @@ export default function ShareModal({
             </Button>
           </div>
 
-          {/* Native Share Option */}
           {navigator.share && (
             <Button
               onClick={handleWebShare}
@@ -175,7 +186,6 @@ export default function ShareModal({
             </Button>
           )}
 
-          {/* Footer */}
           <div className="text-center">
             <Button
               onClick={onClose}
