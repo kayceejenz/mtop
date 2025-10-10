@@ -105,7 +105,6 @@ class FirebaseService {
 
     if (!querySnapshot.empty) {
       const doc = querySnapshot.docs[0];
-      console.log(doc.data());
       return { id: doc.id, ...doc.data() } as User;
     }
     return null;
