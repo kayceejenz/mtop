@@ -110,7 +110,7 @@ export default function Header({
             <div className="flex items-center gap-2 p-2 pr-4 rounded-md border border-gray-200 dark:border-gray-700">
               ⚡
               <span className="font-semibold text-md text-gray-800 dark:text-gray-100">
-                {user.pads} Likes
+                {user.pads.toFixed(2)} Likes{" "}
               </span>
             </div>
             <div className="flex items-center text-sm font-medium text-purple-600 dark:text-purple-300">
