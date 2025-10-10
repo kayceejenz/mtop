@@ -65,7 +65,7 @@ export default function MemeCard({
         return;
       }
 
-      await firebaseService.updateUserPads(currentUser.id, voteWeight);
+      // await firebaseService.updateUserPads(currentUser.id, voteWeight);
       const success = await firebaseService.voteMeme(meme.id, currentUser.id);
 
       if (success) {
