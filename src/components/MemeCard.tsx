@@ -12,7 +12,7 @@ interface MemeCardProps {
   rank?: number;
   onComment: () => void;
   onShare: () => void;
-  onVote: () => void;
+  onInsufficientPad: () => void;
 }
 
 export default function MemeCard({
@@ -21,7 +21,7 @@ export default function MemeCard({
   rank,
   onComment,
   onShare,
-  onVote,
+  onInsufficientPad,
 }: MemeCardProps) {
   const [isVoting, setIsVoting] = useState(false);
   const [confetti, setConfetti] = useState(false);
@@ -61,7 +61,7 @@ export default function MemeCard({
       const pads = await firebaseService.getPads(currentUser.id);
 
       if (pads + voteWeight < 0) {
-        console.warn("Not enough pads to vote");
+        onInsufficientPad();
         return;
       }
 
@@ -72,7 +72,6 @@ export default function MemeCard({
         await firebaseService.updateUserTokens(currentUser.id, 5);
         setConfetti(true);
         setTimeout(() => setConfetti(false), 1000);
-        onVote();
       }
     } catch (error) {
       console.error("Failed to vote:", error);

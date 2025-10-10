@@ -205,21 +205,10 @@ export default function Index() {
     setShowShare(true);
   };
 
-  const handleVote = async (memeId: string) => {
-    if (!user || user.pads <= 0) {
-      setBuyPadsStatus("error");
-      setBuyPadsError("Insufficient Pads for like");
-      return;
-    }
-
-    try {
-      const success = await firebaseService.voteMeme(memeId, user.id);
-      if (success) {
-        await handleRefresh();
-      }
-    } catch (error) {
-      console.error("Failed to vote:", error);
-    }
+  const handleInsufficientPad = async () => {
+    setBuyPadsStatus("error");
+    setBuyPadsError("Insufficient Pads for like");
+    return;
   };
 
   const handleBuyPads = async (likes: number, price: number) => {
