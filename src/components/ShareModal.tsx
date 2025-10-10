@@ -14,7 +14,7 @@ interface ShareModalProps {
   currentUser: { id: string } | null;
   isOpen: boolean;
   onClose: () => void;
-  onPadsEarned: () => void;
+  onPadsEarned: (meme: any) => void;
 }
 
 export default function ShareModal({
@@ -28,23 +28,6 @@ export default function ShareModal({
 
   const shareText = `Check out this hilarious meme: "${meme.caption}" 😂 Vote and earn rewards on MemeTop! 🎭🚀`;
   const shareUrl = window.location.href;
-
-  const grantShareReward = async () => {
-    try {
-      const hasShared = await firebaseService.hasUserSharedMeme(
-        currentUser.id,
-        meme.id
-      );
-      console.log(hasShared);
-      if (!hasShared) {
-        await firebaseService.markMemeShared(currentUser.id, meme.id);
-        await firebaseService.updateUserPads(currentUser.id, 0.2);
-        onPadsEarned();
-      }
-    } catch (err) {
-      console.error("Failed to grant share reward:", err);
-    }
-  };
 
   const handleShare = (platform: string) => {
     let url = "";
@@ -70,16 +53,16 @@ export default function ShareModal({
     }
 
     window.open(url, "_blank", "width=600,height=400");
-    grantShareReward();
     onClose();
+    onPadsEarned(meme);
   };
 
   const handleCopyLink = async () => {
     try {
       await navigator.clipboard.writeText(`${shareText} ${shareUrl}`);
       alert("Link copied to clipboard! 📋");
-      await grantShareReward();
       onClose();
+      onPadsEarned(meme);
     } catch (err) {
       console.error("Failed to copy link:", err);
     }
@@ -93,8 +76,8 @@ export default function ShareModal({
           text: shareText,
           url: shareUrl,
         });
-        await grantShareReward();
         onClose();
+        onPadsEarned(meme);
       } catch (err) {
         console.error("Web share failed:", err);
       }

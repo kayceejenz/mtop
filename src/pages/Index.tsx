@@ -311,10 +311,17 @@ export default function Index() {
     }
   };
 
-  const handleShareReward = async () => {
+  const handleShareReward = async (meme: any) => {
     if (!user) return;
 
     try {
+      const hasShared = await firebaseService.hasUserSharedMeme(
+        user.id,
+        meme.id
+      );
+      if (hasShared) {
+        return;
+      }
       // Check current shares before attempting to reward
       const success = await firebaseService.rewardSharing(user.id);
 
