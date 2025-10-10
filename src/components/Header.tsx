@@ -165,10 +165,9 @@ export default function Header({
               <CheckCircle className="h-5 w-5 flex-shrink-0 !text-green-900 dark:!text-green-300" />
               <div className="flex flex-col text-left">
                 <AlertDescription className="text-sm font-medium">
-                  Successfully purchased{" "}
-                  <span className="font-bold">10 likes</span> 🎉
+                  Successful
                   <span className="block text-xs text-green-700 dark:text-green-300 mt-1">
-                    Your balance has been updated.
+                    {buyPadsError}
                   </span>
                 </AlertDescription>
 
