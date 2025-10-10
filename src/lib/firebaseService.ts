@@ -401,7 +401,7 @@ class FirebaseService {
     return querySnapshot.size;
   }
 
-  async rewardSharing(userId: string): Promise<boolean> {
+  async rewardSharing(userId: string, memeId: string): Promise<boolean> {
     try {
       // Reward pads
       await this.updateUserPads(userId, 0.2);
@@ -409,6 +409,7 @@ class FirebaseService {
       // // Log the share action
       await addDoc(collection(db, "shares"), {
         userId,
+        memeId,
         createdAt: serverTimestamp(),
       });
 

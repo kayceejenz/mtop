@@ -323,7 +323,7 @@ export default function Index() {
         return;
       }
       // Check current shares before attempting to reward
-      const success = await firebaseService.rewardSharing(user.id);
+      const success = await firebaseService.rewardSharing(user.id, meme.id);
 
       if (success) {
         await handleRefresh();
