@@ -10,6 +10,7 @@ import {
   orderBy,
   query,
   serverTimestamp,
+  setDoc,
   Timestamp,
   updateDoc,
   where,
@@ -271,18 +272,41 @@ class FirebaseService {
     }
   }
 
-  // Check if user already earned share reward for meme
-  async hasUserSharedMeme(userId: string, memeId: string) {
-    const docu = await getDoc(doc(db, "users", userId, "sharedMemes", memeId));
-    return docu.exists();
+  async hasUserSharedMeme(userId: string, memeId: string): Promise<boolean> {
+    const q = query(
+      collection(db, "shares"),
+      where("userId", "==", userId),
+      where("memeId", "==", memeId)
+    );
+    const querySnapshot = await getDocs(q);
+    return !querySnapshot.empty;
   }
 
-  // Mark meme as shared (for reward tracking)
+  // ✅ Mark meme as shared (for reward tracking)
   async markMemeShared(userId: string, memeId: string) {
-    const memeRef = doc(db, "users", userId, "sharedMemes", memeId);
-    await updateDoc(memeRef, {
-      sharedAt: new Date(),
-    });
+    const q = query(
+      collection(db, "shares"),
+      where("userId", "==", userId),
+      where("memeId", "==", memeId)
+    );
+
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      // ✅ Update existing record
+      const shareDoc = querySnapshot.docs[0].ref;
+      await updateDoc(shareDoc, {
+        sharedAt: new Date(),
+      });
+    } else {
+      // ✅ Create a new record if it doesn’t exist
+      const newShareRef = doc(collection(db, "shares"));
+      await setDoc(newShareRef, {
+        userId,
+        memeId,
+        sharedAt: new Date(),
+      });
+    }
   }
 
   async hasUserVoted(memeId: string, userId: string): Promise<boolean> {
