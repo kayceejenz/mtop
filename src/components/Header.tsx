@@ -48,7 +48,7 @@ export default function Header({
               <div className="flex items-center gap-2 text-sm font-medium text-purple-600 dark:text-purple-300">
                 <Coins className="w-5 h-5 text-purple-600 dark:text-purple-300" />
                 <span className="font-semibold text-lg text-gray-800 dark:text-gray-100">
-                  {user.tokens}
+                  {user.tokens ?? 0}
                 </span>
               </div>
             </div>
@@ -126,7 +126,7 @@ export default function Header({
             <div className="flex items-center gap-2 px-3 py-2 rounded-md border border-purple-200 dark:border-purple-700">
               <Coins className="w-5 h-5 text-purple-600 dark:text-purple-300" />
               <span className="font-semibold text-md text-gray-800 dark:text-gray-100">
-                {user.tokens}
+                {user.tokens ?? 0}
               </span>
             </div>
           </div>
