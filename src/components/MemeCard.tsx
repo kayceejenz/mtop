@@ -25,7 +25,6 @@ export default function MemeCard({
 }: MemeCardProps) {
   const [isVoting, setIsVoting] = useState(false);
   const [confetti, setConfetti] = useState(false);
-  const [hasVoted, setHasVoted] = useState(false);
   const [commentCount, setCommentCount] = useState(0);
 
   useEffect(() => {
@@ -35,7 +34,6 @@ export default function MemeCard({
         //   meme.id,
         //   currentUser.id
         // );
-        setHasVoted(false);
       } catch (error) {
         console.error("Failed to check vote status:", error);
       }
@@ -55,7 +53,7 @@ export default function MemeCard({
   }, [meme.id, currentUser.id]);
 
   const handleVote = async () => {
-    if (currentUser.pads <= 0 || hasVoted || isVoting) return;
+    if (currentUser.pads <= 0 || isVoting) return;
 
     setIsVoting(true);
 
@@ -70,7 +68,6 @@ export default function MemeCard({
       if (success) {
         await firebaseService.updateUserTokens(currentUser.id, 5);
 
-        setHasVoted(true);
         setConfetti(true);
         setTimeout(() => setConfetti(false), 1000);
         onVote();
@@ -85,7 +82,7 @@ export default function MemeCard({
   const isTopThree = rank && rank <= 3;
   const crownEmoji =
     rank === 1 ? "👑" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "";
-  const canVote = currentUser.pads > 0 && !hasVoted && !isVoting;
+  const canVote = currentUser.pads > 0 && !isVoting;
 
   return (
     <Card
@@ -197,9 +194,7 @@ export default function MemeCard({
                 className={`transition-all duration-200 flex items-center px-3 py-1 rounded-md`}
               >
                 <Heart
-                  className={`w-4 h-4  transition-colors duration-200 ${
-                    hasVoted ? "fill-red-500 text-red-500" : "text-gray-800"
-                  }`}
+                  className={`w-4 h-4  transition-colors duration-200 text-gray-800`}
                 />
                 {meme.likes}
               </Button>
@@ -232,15 +227,9 @@ export default function MemeCard({
             </div>
           </div>
 
-          {currentUser.pads <= 0 && !hasVoted && (
+          {currentUser.pads <= 0 && (
             <div className="text-xs text-center text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/30 p-2 rounded">
               Out of likes! Buy more to keep voting 🎯
-            </div>
-          )}
-
-          {hasVoted && (
-            <div className="text-xs text-center text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-900/30 p-2 rounded">
-              You voted for this meme! 💚
             </div>
           )}
         </div>

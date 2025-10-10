@@ -40,7 +40,7 @@ export default function Header({
             <div className="flex items-center gap-2 ">
               ⚡
               <span className="font-semibold text-lg text-gray-800 dark:text-gray-100">
-                {user.pads} Likes
+                {Math.abs(user.pads).toFixed(2)} Likes{" "}
               </span>
             </div>
 
