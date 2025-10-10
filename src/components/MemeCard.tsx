@@ -53,21 +53,23 @@ export default function MemeCard({
   }, [meme.id, currentUser.id]);
 
   const handleVote = async () => {
-    if (currentUser.pads <= 0 || isVoting) return;
+    if (isVoting) return;
 
     setIsVoting(true);
 
     try {
       const pads = await firebaseService.getPads(currentUser.id);
-      if (pads < voteWeight) {
+
+      if (pads + voteWeight < 0) {
+        console.warn("Not enough pads to vote");
         return;
       }
+
       await firebaseService.updateUserPads(currentUser.id, voteWeight);
       const success = await firebaseService.voteMeme(meme.id, currentUser.id);
 
       if (success) {
         await firebaseService.updateUserTokens(currentUser.id, 5);
-
         setConfetti(true);
         setTimeout(() => setConfetti(false), 1000);
         onVote();
