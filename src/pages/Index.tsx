@@ -520,11 +520,12 @@ export default function Index() {
                           </p>
                           <div className="flex space-x-4 sm:space-x-0 sm:flex-col sm:items-end sm:space-y-1">
                             <div className="font-bold text-red-500 flex items-center">
-                              {meme.likes} <span className="ml-1">❤️</span>
+                              {meme.likes.toFixed(2)}{" "}
+                              <span className="ml-1">❤️</span>
                             </div>
                             <div className="text-sm text-purple-500 dark:text-purple-300 flex items-center">
                               <Coins className="h-3 w-3 mr-1" />
-                              {meme.rewardPool}
+                              {meme.rewardPool.toFixed(2)}
                             </div>
                           </div>
                         </div>
