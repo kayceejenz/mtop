@@ -25,6 +25,7 @@ export interface User {
   displayName: string;
   pfpUrl: string;
   pads: number;
+  tokens: number;
   totalEarned: number;
   createdAt: Timestamp;
   lastActive: Timestamp;

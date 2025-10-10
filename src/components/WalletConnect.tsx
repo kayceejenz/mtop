@@ -60,6 +60,7 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
           pfpUrl: farcasterUser.pfpUrl,
           pads: 5, // 5 free pads for new users
           totalEarned: 0,
+          tokens: 0,
         });
 
         user = await firebaseService.getUser(userId);
@@ -82,6 +83,7 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
         displayName: "Demo User",
         pfpUrl: "https://via.placeholder.com/100x100/6366f1/ffffff?text=DU",
         pads: 5,
+        tokens: 0,
         totalEarned: 0,
         createdAt: Timestamp.fromDate(new Date()),
         lastActive: Timestamp.fromDate(new Date()),
