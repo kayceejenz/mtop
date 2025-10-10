@@ -271,6 +271,20 @@ class FirebaseService {
     }
   }
 
+  // Check if user already earned share reward for meme
+  async hasUserSharedMeme(userId: string, memeId: string) {
+    const docu = await getDoc(doc(db, "users", userId, "sharedMemes", memeId));
+    return docu.exists();
+  }
+
+  // Mark meme as shared (for reward tracking)
+  async markMemeShared(userId: string, memeId: string) {
+    const memeRef = doc(db, "users", userId, "sharedMemes", memeId);
+    await updateDoc(memeRef, {
+      sharedAt: new Date(),
+    });
+  }
+
   async hasUserVoted(memeId: string, userId: string): Promise<boolean> {
     const q = query(
       collection(db, "votes"),
