@@ -208,7 +208,7 @@ export default function Index() {
   const handleInsufficientPad = async () => {
     await handleRefresh();
     setBuyPadsStatus("error");
-    setBuyPadsError("Insufficient Pads for like");
+    setBuyPadsError("Insufficient amount of likes");
     return;
   };
 
