@@ -18,7 +18,6 @@ export default function Header({
   buyPadsError,
   hash,
 }) {
-  console.log(user);
   return (
     <header className=" top-0 z-40 bg-purple-50 dark:bg-[#0b0b14] backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <div className="container mx-auto px-4 py-3">
