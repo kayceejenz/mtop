@@ -206,6 +206,7 @@ export default function Index() {
   };
 
   const handleInsufficientPad = async () => {
+    await handleRefresh();
     setBuyPadsStatus("error");
     setBuyPadsError("Insufficient Pads for like");
     return;
@@ -446,7 +447,7 @@ export default function Index() {
                   currentUser={user}
                   onComment={() => handleComment(meme)}
                   onShare={() => handleShare(meme)}
-                  onVote={() => handleVote(meme.id)}
+                  onInsufficientPad={() => handleInsufficientPad()}
                 />
               ))}
             </div>
