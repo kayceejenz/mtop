@@ -204,7 +204,7 @@ export default function DailyPrompt({ onSubmitMeme }: DailyPromptProps) {
             </span>{" "}
             earn creators{" "}
             <span className="font-semibold text-purple-600 dark:text-purple-300">
-              30%
+              60%
             </span>{" "}
             of the reward pool!
           </div>
