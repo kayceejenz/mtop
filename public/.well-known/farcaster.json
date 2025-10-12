@@ -1,0 +1,30 @@
+{
+  "accountAssociation": {
+    "header": "eyJmaWQiOjkxNTIsInR5cGUiOiJjdXN0b2R5Iiwia2V5IjoiMHgwMmVmNzkwRGQ3OTkzQTM1ZkQ4NDdDMDUzRURkQUU5NDBEMDU1NTk2In0",
+    "payload": "eyJkb21haW4iOiJtZW1lZG90ZnVuLnh5eiJ9",
+    "signature": "MHgxMGQwZGU4ZGYwZDUwZTdmMGIxN2YxMTU2NDI1MjRmZTY0MTUyZGU4ZGU1MWU0MThiYjU4ZjVmZmQxYjRjNDBiNGVlZTRhNDcwNmVmNjhlMzQ0ZGQ5MDBkYmQyMmNlMmVlZGY5ZGQ0N2JlNWRmNzMwYzUxNjE4OWVjZDJjY2Y0MDFj"
+  },
+  "miniapp": {
+    "version": "1",
+    "name": "MemeDotFun",
+    "iconUrl": "https://www.memedotfun.xyz/icon.png",
+    "splashImageUrl": "https://www.memedotfun.xyz/splash.png",
+    "splashBackgroundColor": "#000000",
+    "homeUrl": "https://www.memedotfun.xyz",
+    "webhookUrl": "https://www.memedotfun.xyz/api/farcaster-webhook",
+    "subtitle": "Share. Laugh. Earn.",
+    "description": "MemeDotFun lets you share memes, earn tokens, and compete for rewards. The fun never ends.",
+    "screenshotUrls": [
+      "https://www.memedotfun.xyz/screenshots/shot1.png",
+      "https://www.memedotfun.xyz/screenshots/shot2.png",
+      "https://www.memedotfun.xyz/screenshots/shot3.png"
+    ],
+    "primaryCategory": "social",
+    "tags": ["memes", "fun", "rewards", "social", "earn"],
+    "heroImageUrl": "https://www.memedotfun.xyz/og.png",
+    "tagline": "Share memes. Earn rewards.",
+    "ogTitle": "MemeDotFun",
+    "ogDescription": "Post memes, collect tokens, and climb the leaderboard on MemeDotFun.",
+    "ogImageUrl": "https://www.memedotfun.xyz/og.png"
+  }
+}
