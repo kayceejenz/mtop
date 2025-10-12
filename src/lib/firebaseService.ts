@@ -260,7 +260,7 @@ class FirebaseService {
       const memeRef = doc(db, "memes", memeId);
       await updateDoc(memeRef, {
         likes: increment(1),
-        rewardPool: increment(0.6), // 60% of each vote goes to reward pool
+        rewardPool: increment(5 * 0.6), // 60% of each vote goes to reward pool
         updatedAt: serverTimestamp(),
       });
       const meme = await getDoc(memeRef);
