@@ -260,13 +260,13 @@ class FirebaseService {
       const memeRef = doc(db, "memes", memeId);
       await updateDoc(memeRef, {
         likes: increment(1),
-        rewardPool: increment(5 * 0.6), // 60% of each vote goes to reward pool
+        rewardPool: increment(10 * 0.6), // 60% of each vote goes to reward pool
         updatedAt: serverTimestamp(),
       });
       const meme = await getDoc(memeRef);
 
       // Decrease user pads
-      await this.updateUserTokens(meme.data()?.creatorId, 5 * 0.6);
+      await this.updateUserTokens(meme.data()?.creatorId, 10 * 0.6);
       await this.updateUserPads(userId, -3);
 
       return true;
