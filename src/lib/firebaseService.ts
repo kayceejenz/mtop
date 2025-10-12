@@ -264,8 +264,7 @@ class FirebaseService {
       });
 
       // Decrease user pads
-      await this.updateUserPads(userId, -1);
-      await this.updateUserTokens(userId, 10);
+      await this.updateUserPads(userId, -3);
 
       return true;
     } catch (error) {

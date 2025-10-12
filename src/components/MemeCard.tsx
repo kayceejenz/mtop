@@ -67,9 +67,9 @@ export default function MemeCard({
 
       // await firebaseService.updateUserPads(currentUser.id, voteWeight);
       const success = await firebaseService.voteMeme(meme.id, currentUser.id);
+      await firebaseService.updateUserTokens(currentUser.id, 5);
 
       if (success) {
-        await firebaseService.updateUserTokens(currentUser.id, 5);
         setConfetti(true);
         setTimeout(() => setConfetti(false), 1000);
       }
