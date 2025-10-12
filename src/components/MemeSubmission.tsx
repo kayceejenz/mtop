@@ -71,7 +71,7 @@ export default function MemeSubmission({
         promptId: todayPrompt.id,
       });
 
-      await firebaseService.updateUserTokens(currentUser.id, 20);
+      await firebaseService.updateUserTokens(currentUser.id, 5);
 
       // Reset form
       setCaption("");
