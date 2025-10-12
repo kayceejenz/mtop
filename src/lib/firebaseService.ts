@@ -262,8 +262,10 @@ class FirebaseService {
         rewardPool: increment(0.6), // 60% of each vote goes to reward pool
         updatedAt: serverTimestamp(),
       });
+      const meme = await getDoc(memeRef);
 
       // Decrease user pads
+      await this.updateUserTokens(meme.data()?.creatorId, 5 * 0.6);
       await this.updateUserPads(userId, -3);
 
       return true;
