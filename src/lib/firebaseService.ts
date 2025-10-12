@@ -265,7 +265,7 @@ class FirebaseService {
       const meme = await getDoc(memeRef);
 
       // Decrease user pads
-      await this.updateUserTokens(meme.data()?.creatorId, 5 * 0.6);
+      await this.updateUserTokens(meme.data()?.creatorId, 0.6);
       await this.updateUserPads(userId, -3);
 
       return true;
