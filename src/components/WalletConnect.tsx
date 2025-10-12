@@ -11,7 +11,7 @@ import { Wallet, Share2, Gift } from "lucide-react";
 import { farcasterService, FarcasterUser } from "@/lib/farcaster";
 import { firebaseService, User } from "@/lib/firebaseService";
 import { Timestamp } from "firebase/firestore";
-import { set } from "zod";
+import { useAccount } from "wagmi";
 
 interface WalletConnectProps {
   onConnect: (user: User) => void;
@@ -21,6 +21,7 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
   const [showWelcome, setShowWelcome] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isInitialized, setIsInitialized] = useState(false);
+  const { isConnected, address } = useAccount();
 
   useEffect(() => {
     const initializeFarcaster = async () => {
@@ -58,6 +59,7 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
           username: farcasterUser.username,
           displayName: farcasterUser.displayName,
           pfpUrl: farcasterUser.pfpUrl,
+          address,
           pads: 5, // 5 free pads for new users
           totalEarned: 0,
           token: 0,
@@ -81,6 +83,7 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
         fid: 12345,
         username: "demouser",
         displayName: "Demo User",
+        address: "",
         pfpUrl: "https://via.placeholder.com/100x100/6366f1/ffffff?text=DU",
         pads: 5,
         token: 0,

@@ -26,6 +26,7 @@ export interface User {
   pfpUrl: string;
   pads: number;
   token: number;
+  address: string;
   totalEarned: number;
   createdAt: Timestamp;
   lastActive: Timestamp;
