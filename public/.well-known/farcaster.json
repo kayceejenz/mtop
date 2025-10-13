@@ -9,8 +9,6 @@
     "version": "1",
     "name": "Memedotfun",
     "iconUrl": "https://www.memedotfun.xyz/icon.png",
-    "splashImageUrl": "https://www.memedotfun.xyz/splash.png",
-    "splashBackgroundColor": "#000000",
     "homeUrl": "https://www.memedotfun.xyz",
     "webhookUrl": "https://www.memedotfun.xyz/api/farcaster-webhook",
     "subtitle": "Share. Laugh. Earn.",
