@@ -16,7 +16,8 @@ interface CommentSectionProps {
   currentUser: User;
   isOpen: boolean;
   onClose: () => void;
-  onCommentAdded: () => void;
+  // onCommentAdded: () => void;
+  onCommentAdded: (memeId: string) => void;
 }
 
 export default function CommentSection({
@@ -58,6 +59,28 @@ export default function CommentSection({
     return () => unsubscribe();
   }, [meme, isOpen]);
 
+  // const handleSubmitComment = async () => {
+  //   if (!meme || !newComment.trim()) return;
+
+  //   try {
+  //     await firebaseService.addComment({
+  //       memeId: meme.id,
+  //       userId: currentUser.id,
+  //       user: {
+  //         username: currentUser.username,
+  //         displayName: currentUser.displayName,
+  //         pfpUrl: currentUser.pfpUrl,
+  //       },
+  //       text: newComment.trim(),
+  //     });
+
+  //     setNewComment("");
+  //     onCommentAdded();
+  //   } catch (error) {
+  //     console.error("Failed to add comment:", error);
+  //   }
+  // };
+
   const handleSubmitComment = async () => {
     if (!meme || !newComment.trim()) return;
 
@@ -74,7 +97,9 @@ export default function CommentSection({
       });
 
       setNewComment("");
-      onCommentAdded();
+
+      // Notify parent that a comment was added for this specific meme
+      onCommentAdded(meme.id);
     } catch (error) {
       console.error("Failed to add comment:", error);
     }

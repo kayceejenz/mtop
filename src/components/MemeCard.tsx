@@ -6,55 +6,59 @@ import { Heart, MessageCircle, Share2, Trophy, Coins } from "lucide-react";
 import { Meme, User, firebaseService } from "@/lib/firebaseService";
 
 const voteWeight = -3;
+
 interface MemeCardProps {
   meme: Meme;
   currentUser: User;
   rank?: number;
+  commentCount: number;
   onComment: () => void;
   onShare: () => void;
   onInsufficientPad: () => void;
+  onVote: () => void;
 }
 
 export default function MemeCard({
   meme,
   currentUser,
   rank,
+  commentCount,
   onComment,
   onShare,
   onInsufficientPad,
+  onVote,
 }: MemeCardProps) {
   const [isVoting, setIsVoting] = useState(false);
   const [confetti, setConfetti] = useState(false);
-  const [commentCount, setCommentCount] = useState(0);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [optimisticLikes, setOptimisticLikes] = useState(meme.likes);
 
   useEffect(() => {
     const checkVoteStatus = async () => {
       try {
-        // const voted = await firebaseService.hasUserVoted(
-        //   meme.id,
-        //   currentUser.id
-        // );
+        const voted = await firebaseService.hasUserVoted(
+          meme.id,
+          currentUser.id
+        );
+        setHasVoted(voted);
       } catch (error) {
         console.error("Failed to check vote status:", error);
       }
     };
 
-    const loadCommentCount = async () => {
-      try {
-        const comments = await firebaseService.getCommentsByMeme(meme.id);
-        setCommentCount(comments.length);
-      } catch (error) {
-        console.error("Failed to load comment count:", error);
-      }
-    };
-
     checkVoteStatus();
-    loadCommentCount();
   }, [meme.id, currentUser.id]);
 
   const handleVote = async () => {
-    if (isVoting) return;
+    if (hasVoted) return; // Prevent double voting
 
+    // IMMEDIATE UI UPDATE - No waiting for Firebase
+    setHasVoted(true);
+    setOptimisticLikes((prev) => prev + 1);
+    setConfetti(true);
+    setTimeout(() => setConfetti(false), 1000);
+
+    // Call Firebase in background - don't wait for it
     setIsVoting(true);
 
     try {
@@ -62,28 +66,41 @@ export default function MemeCard({
 
       if (pads + voteWeight < 0) {
         onInsufficientPad();
+        // Don't revert UI - let the user see their like
         return;
       }
 
-      // await firebaseService.updateUserPads(currentUser.id, voteWeight);
-      const success = await firebaseService.voteMeme(meme.id, currentUser.id);
-      await firebaseService.updateUserTokens(currentUser.id, 10);
-
-      if (success) {
-        setConfetti(true);
-        setTimeout(() => setConfetti(false), 1000);
-      }
+      // Fire and forget - don't await, just trigger
+      firebaseService
+        .voteMeme(meme.id, currentUser.id)
+        .then((success) => {
+          if (success) {
+            firebaseService.updateUserTokens(currentUser.id, 10);
+            onVote(); // Notify parent for data refresh
+          } else {
+            console.warn("Vote failed on server, but UI remains updated");
+          }
+        })
+        .catch((error) => {
+          console.error("Background vote failed:", error);
+          // Don't revert UI - keep the optimistic update
+        })
+        .finally(() => {
+          setIsVoting(false);
+        });
     } catch (error) {
-      console.error("Failed to vote:", error);
-    } finally {
-      setTimeout(() => setIsVoting(false), 500);
+      console.error("Failed to check pads:", error);
+      setIsVoting(false);
+      // Still don't revert UI - optimistic update stays
     }
   };
 
   const isTopThree = rank && rank <= 3;
   const crownEmoji =
     rank === 1 ? "👑" : rank === 2 ? "🥈" : rank === 3 ? "🥉" : "";
-  const canVote = currentUser.pads > 0 && !isVoting;
+
+  // User can vote if they haven't voted yet (regardless of Firebase state)
+  const canVote = !hasVoted;
 
   return (
     <Card
@@ -132,10 +149,10 @@ export default function MemeCard({
             alt={meme.caption}
             className="w-full h-64 object-cover"
           />
-          {meme.likes >= 1000 && (
+          {optimisticLikes >= 1000 && (
             <div className="absolute top-2 right-2">
               <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white dark:from-purple-300 dark:to-indigo-400 dark:text-gray-900">
-                <Trophy className="w-3 h-3 " />
+                <Trophy className="w-3 h-3" />
                 1K Club!
               </Badge>
             </div>
@@ -168,45 +185,34 @@ export default function MemeCard({
 
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-4">
-              {/* <Button
-                size="sm"
-                onClick={handleVote}
-                disabled={!canVote}
-                className={`transition-all duration-200 ${
-                  canVote
-                    ? `bg-gradient-to-r from-purple-500 to-indigo-500 hover:from-purple-600 hover:to-indigo-600 text-white dark:from-purple-300 dark:to-indigo-400 dark:text-gray-900`
-                    : "bg-gray-200 dark:bg-gray-700 text-gray-500 cursor-not-allowed"
-                } ${
-                  hasVoted ? "ring-2 ring-purple-400 dark:ring-purple-300" : ""
-                }`}
-              >
-                <Heart
-                  className={`w-4 h-4  ${isVoting ? "animate-pulse" : ""} ${
-                    hasVoted ? "fill-current" : ""
-                  }`}
-                />
-                {meme.likes}
-              </Button> */}
               <Button
                 variant="outline"
                 size="sm"
                 onClick={handleVote}
                 disabled={!canVote}
-                className={`transition-all duration-200 flex items-center px-3 py-1 rounded-md`}
+                className={`transition-all duration-200 flex items-center px-3 py-1 rounded-md ${
+                  hasVoted
+                    ? "bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-700"
+                    : "hover:bg-purple-50 dark:hover:bg-purple-900/30 border-gray-200"
+                }`}
               >
                 <Heart
-                  className={`w-4 h-4  transition-colors duration-200 text-gray-800`}
+                  className={`w-4 h-4 transition-all duration-200 ${
+                    hasVoted
+                      ? "fill-red-500 text-red-500"
+                      : "text-red-500 hover:text-red-600"
+                  }`}
                 />
-                {meme.likes}
+                <span className="ml-1">{optimisticLikes}</span>
               </Button>
 
               <Button
                 variant="outline"
                 size="sm"
                 onClick={onComment}
-                className="hover:bg-purple-50 dark:hover:bg-purple-900/30"
+                className="hover:bg-purple-50 dark:hover:bg-purple-900/30 border-gray-200"
               >
-                <MessageCircle className="w-4 h-4 " />
+                <MessageCircle className="w-4 h-4" />
                 {commentCount}
               </Button>
 
@@ -214,7 +220,7 @@ export default function MemeCard({
                 variant="outline"
                 size="sm"
                 onClick={onShare}
-                className="hover:bg-indigo-50 dark:hover:bg-indigo-900/30"
+                className="hover:bg-indigo-50 dark:hover:bg-indigo-900/30 border-gray-200"
               >
                 <Share2 className="w-4 h-4" />
               </Button>
@@ -222,13 +228,13 @@ export default function MemeCard({
 
             <div className="flex items-center space-x-2">
               <div className="flex items-center text-sm font-medium text-purple-600 dark:text-purple-300">
-                <Coins className="w-4 h-4 " />
+                <Coins className="w-4 h-4" />
                 {Math.floor(meme.rewardPool)} tokens
               </div>
             </div>
           </div>
 
-          {currentUser.pads <= 0 && (
+          {currentUser.pads <= 0 && !hasVoted && (
             <div className="text-xs text-center text-purple-700 dark:text-purple-300 bg-purple-50 dark:bg-purple-900/30 p-2 rounded">
               Out of likes! Buy more to keep voting 🎯
             </div>

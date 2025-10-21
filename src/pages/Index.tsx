@@ -16,7 +16,9 @@ import {
   firebaseService,
   Meme,
   User,
+  Comment,
 } from "@/lib/firebaseService";
+import { Timestamp } from "firebase/firestore";
 import {
   CheckCircle,
   Coins,
@@ -47,6 +49,10 @@ export default function Index() {
   const [showSubmission, setShowSubmission] = useState(false);
   const [loading, setLoading] = useState(true);
   const [likeCountForPurchased, setLikeCountForPurchased] = useState(0);
+  const [comments, setComments] = useState<{ [memeId: string]: Comment[] }>({});
+  const [voteStatus, setVoteStatus] = useState<{ [memeId: string]: boolean }>(
+    {}
+  );
 
   // Pad buying states
   const [buyPadsStatus, setBuyPadsStatus] = useState<
@@ -200,6 +206,78 @@ export default function Index() {
     setShowComments(true);
   };
 
+  // Function to handle comment addition
+  const handleCommentAdded = async (memeId: string) => {
+    // Refresh comments for this specific meme
+    if (memeId) {
+      try {
+        const memeComments = await firebaseService.getCommentsByMeme(memeId);
+        setComments((prev) => ({
+          ...prev,
+          [memeId]: memeComments,
+        }));
+      } catch (error) {
+        console.error("Failed to refresh comments:", error);
+      }
+    }
+
+    // Also refresh user data and memes
+    await handleRefresh();
+  };
+
+  const handleVote = async () => {
+    await handleRefresh(); // Refresh to get updated like counts
+  };
+
+  useEffect(() => {
+    const loadVoteStatus = async () => {
+      if (!user || memes.length === 0) return;
+
+      const newVoteStatus: { [memeId: string]: boolean } = {};
+
+      for (const meme of memes) {
+        try {
+          const hasVoted = await firebaseService.hasUserVoted(meme.id, user.id);
+          newVoteStatus[meme.id] = hasVoted;
+        } catch (error) {
+          console.error(
+            `Failed to check vote status for meme ${meme.id}:`,
+            error
+          );
+          newVoteStatus[meme.id] = false;
+        }
+      }
+
+      setVoteStatus(newVoteStatus);
+    };
+
+    loadVoteStatus();
+  }, [memes, user]);
+
+  // Subscribe to comments for all memes
+  useEffect(() => {
+    if (!todayPrompt || memes.length === 0) return;
+
+    const unsubscribeCallbacks: (() => void)[] = [];
+
+    // Subscribe to comments for each meme
+    memes.forEach((meme) => {
+      const unsubscribe = firebaseService.subscribeToComments(
+        meme.id,
+        (updatedComments) => {
+          setComments((prev) => ({
+            ...prev,
+            [meme.id]: updatedComments,
+          }));
+        }
+      );
+      unsubscribeCallbacks.push(unsubscribe);
+    });
+
+    return () => {
+      unsubscribeCallbacks.forEach((unsubscribe) => unsubscribe());
+    };
+  }, [memes, todayPrompt]);
   const handleShare = (meme: Meme) => {
     setSelectedMeme(meme);
     setShowShare(true);
@@ -381,7 +459,12 @@ export default function Index() {
           {/* <div className="text-6xl bg-gradient-to-r from-purple-500 to-purple-500 dark:from-purple-300 dark:to-purple-300 bg-clip-text text-transparent animate-bounce ">
             🎭
           </div> */}
-          <div className="text-6xl mb-4 animate-bounce">😎</div>
+          <img
+            src="/memewhiteBG.jpg"
+            alt="Memedotfun"
+            className="w-20 mx-auto rounded-md mb-4 animate-bounce"
+          />
+          {/* <div className="text-6xl mb-4 animate-bounce">😎</div> */}
           <p className="text-xl font-medium text-purple-700 dark:text-white">
             Loading Memedotfun...
           </p>
@@ -393,6 +476,41 @@ export default function Index() {
   if (!user) {
     return <WalletConnect onConnect={handleUserConnect} />;
   }
+
+  // // 🧍 Mock User
+  // const mockUser: User = {
+  //   id: "user_001",
+  //   fid: 12345,
+  //   username: "edwardugwu",
+  //   displayName: "Edward Ugwu",
+  //   pfpUrl: "https://i.pravatar.cc/150?img=3",
+  //   pads: 120,
+  //   token: 45,
+  //   address: "0x8B3F...2E9A",
+  //   totalEarned: 5200,
+  //   createdAt: Timestamp.fromDate(new Date("2025-01-10")),
+  //   lastActive: Timestamp.fromDate(new Date("2025-10-14")),
+  // };
+
+  // // 😂 Mock Meme
+  // const mockMeme: Meme[] = [
+  //   {
+  //     id: "meme_001",
+  //     imageUrl: "https://picsum.photos/600/400",
+  //     caption: "When your code finally works after 6 hours of debugging 😅",
+  //     creatorId: "user_001",
+  //     creator: {
+  //       username: mockUser.username,
+  //       displayName: mockUser.displayName,
+  //       pfpUrl: mockUser.pfpUrl,
+  //     },
+  //     likes: 256,
+  //     rewardPool: 1800,
+  //     promptId: "prompt_001",
+  //     createdAt: Timestamp.fromDate(new Date("2025-10-01")),
+  //     updatedAt: Timestamp.fromDate(new Date("2025-10-10")),
+  //   },
+  // ];
 
   return (
     <div className="min-h-screen bg-purple-50 dark:bg-[#0b0b14] ">
@@ -440,14 +558,17 @@ export default function Index() {
           {/* FEED */}
           <TabsContent value="feed" className="space-y-4">
             <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-              {memes.map((meme) => (
+              {memes?.map((meme, index) => (
                 <MemeCard
                   key={meme.id}
                   meme={meme}
                   currentUser={user}
+                  rank={index + 1}
+                  commentCount={comments[meme.id]?.length || 0}
                   onComment={() => handleComment(meme)}
                   onShare={() => handleShare(meme)}
                   onInsufficientPad={() => handleInsufficientPad()}
+                  onVote={handleVote}
                 />
               ))}
             </div>
@@ -560,7 +681,7 @@ export default function Index() {
         currentUser={user}
         isOpen={showComments}
         onClose={() => setShowComments(false)}
-        onCommentAdded={handleRefresh}
+        onCommentAdded={handleCommentAdded}
       />
 
       <ShareModal

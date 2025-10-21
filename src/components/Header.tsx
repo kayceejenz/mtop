@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { CheckCircle, Coins, Loader2, Wallet, XCircle } from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Alert, AlertDescription } from "./ui/alert";
+import { useTheme } from "@/hooks/use-theme";
 
 export default function Header({
   user,
@@ -24,12 +25,19 @@ export default function Header({
         <div className="flex items-center justify-between">
           {/* Logo + Beta */}
           <div className="flex items-center space-x-2">
-            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-500 to-purple-500 dark:from-purple-300 dark:to-purple-300 bg-clip-text text-transparent">
-              Memedotfun
-            </h1>
-            <Badge variant="secondary" className="hidden sm:inline-flex">
+            <div className="flex gap-2 items-center justify-center">
+              <img
+                src={"/memewhiteBG.jpg"}
+                alt="Memedotfun"
+                className="w-10 rounded-md"
+              />
+              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-500 to-purple-500 dark:from-purple-300 dark:to-purple-300 bg-clip-text text-transparent">
+                Memedotfun
+              </h1>
+            </div>
+            {/* <Badge variant="secondary" className="hidden sm:inline-flex">
               Beta
-            </Badge>
+            </Badge> */}
           </div>
 
           {/* Desktop Right Section */}

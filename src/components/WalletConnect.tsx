@@ -130,7 +130,11 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
   if (!isInitialized) {
     return (
       <div className="min-h-screen transition-colors duration-500 bg-purple-50 dark:bg-[#0b0b14] flex items-center justify-center">
-        <div className="text-6xl mb-4 animate-bounce">😎</div>
+        <img
+          src="/memewhiteBG.jpg"
+          alt="Memedotfun"
+          className="w-20 rounded-md"
+        />
         <p className="text-xl font-medium text-purple-700 dark:text-white">
           Initializing Memedotfun...
         </p>
@@ -142,6 +146,11 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
     <>
       <div className="min-h-screen flex flex-col items-center justify-center h-full px-6 text-center space-y-6 transition-colors duration-500 bg-purple-50 dark:bg-[#0b0b14]">
         <div className="space-y-4">
+          <img
+            src="/memewhiteBG.jpg"
+            alt="Memedotfun"
+            className="w-20 mx-auto rounded-md"
+          />
           <h1 className="text-4xl font-extrabold text-purple-700 dark:text-purple-300">
             Welcome to MemeDotFun!
           </h1>
