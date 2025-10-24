@@ -147,7 +147,8 @@ export default function MemeCard({
           <img
             src={meme.imageUrl}
             alt={meme.caption}
-            className="w-full h-64 object-cover"
+            // className="w-full h-64 object-cover"
+            className="w-full object-contain"
           />
           {optimisticLikes >= 1000 && (
             <div className="absolute top-2 right-2">

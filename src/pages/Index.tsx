@@ -360,7 +360,7 @@ export default function Index() {
       // Share on Farcaster
       try {
         await farcasterService.shareFrame(
-          `Just bought ${PADS_TO_BUY} pads! 🎉`,
+          `Just bought ${PADS_TO_BUY} likes! 🎉`,
           window.location.href
         );
       } catch (shareError) {
