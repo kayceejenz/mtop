@@ -90,15 +90,23 @@ export default function Header({
             {/* User profile */}
             <div className="flex items-center space-x-2">
               <img
+                key={user.pfpUrl}
                 src={
-                  user.pfpUrl ||
-                  `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                    user.username || "User"
-                  )}&background=6B46C1&color=fff&rounded=true`
+                  user.pfpUrl && user.pfpUrl.startsWith("http")
+                    ? user.pfpUrl
+                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                        user.username || "User"
+                      )}&background=6B46C1&color=fff&rounded=true`
                 }
                 alt={user.displayName || "User"}
-                className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700"
+                onError={(e) => {
+                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    user.username || "User"
+                  )}&background=6B46C1&color=fff&rounded=true`;
+                }}
+                className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 object-cover"
               />
+
               <span className="text-sm font-medium hidden sm:inline text-gray-800 dark:text-gray-200">
                 {user.username}
               </span>

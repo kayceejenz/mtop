@@ -84,7 +84,10 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
         username: "demouser",
         displayName: "Demo User",
         address: "",
-        pfpUrl: "https://via.placeholder.com/100x100/6366f1/ffffff?text=DU",
+        // pfpUrl: "https://via.placeholder.com/100x100/6366f1/ffffff?text=DU",
+        pfpUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(
+          "Demo User"
+        )}&background=6B46C1&color=fff&rounded=true`,
         pads: 5,
         token: 0,
         totalEarned: 0,
