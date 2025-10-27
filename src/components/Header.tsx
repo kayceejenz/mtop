@@ -19,7 +19,7 @@ export default function Header({
   buyPadsError,
   hash,
 }) {
-  console.log("xxxxxxxxxxxxxxxxx", user);
+  console.log("xxx", user?.pfpUrl);
   return (
     <header className=" top-0 z-40 bg-purple-50 dark:bg-[#0b0b14] backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <div className="container mx-auto px-4 py-3">
@@ -92,11 +92,12 @@ export default function Header({
               <img
                 key={user.pfpUrl}
                 src={
-                  user.pfpUrl && user.pfpUrl.startsWith("http")
-                    ? user.pfpUrl
-                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                        user.username || "User"
-                      )}&background=6B46C1&color=fff&rounded=true`
+                  // user.pfpUrl && user.pfpUrl.startsWith("http")
+                  //   ?
+                  user.pfpUrl
+                  // : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                  //     user.username || "User"
+                  //   )}&background=6B46C1&color=fff&rounded=true`
                 }
                 alt={user.displayName || "User"}
                 onError={(e) => {
