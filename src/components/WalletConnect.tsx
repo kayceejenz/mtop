@@ -84,7 +84,8 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
         username: "demouser",
         displayName: "Demo User",
         address: "",
-        // pfpUrl: "https://via.placeholder.com/100x100/6366f1/ffffff?text=DU",
+        // pfpUrl:
+        //   "https://imagedelivery.net/BXluQx4ige9GuW0Ia56BHw/3388e27f-9da8-4a77-7d51-24f0899c9800/rectcrop3",
         pfpUrl: `https://ui-avatars.com/api/?name=${encodeURIComponent(
           "Demo User"
         )}&background=6B46C1&color=fff&rounded=true`,
@@ -138,9 +139,9 @@ export default function WalletConnect({ onConnect }: WalletConnectProps) {
           alt="Memedotfun"
           className="w-20 rounded-md"
         />
-        <p className="text-xl font-medium text-purple-700 dark:text-white">
+        {/* <p className="text-xl font-medium text-purple-700 dark:text-white">
           Initializing Memedotfun...
-        </p>
+        </p> */}
       </div>
     );
   }

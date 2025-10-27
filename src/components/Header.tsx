@@ -91,6 +91,7 @@ export default function Header({
             {/* User profile */}
             <div className="flex items-center space-x-2">
               <img
+                key={user?.pfpUrl}
                 src={
                   user.pfpUrl && user.pfpUrl.startsWith("http")
                     ? user.pfpUrl
@@ -98,7 +99,7 @@ export default function Header({
                         user.username || "User"
                       )}&background=6B46C1&color=fff&rounded=true`
                 }
-                alt={user.displayName || "User"}
+                alt={"User"}
                 onError={(e) => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
@@ -122,11 +123,24 @@ export default function Header({
             {/* User profile */}
             <div className="flex items-center gap-2">
               <img
-                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
-                  user.username || "User"
-                )}&background=6B46C1&color=fff&rounded=true`}
-                alt={user.displayName || "User"}
-                className="w-8 h-8 rounded-full border border-gray-200 dark:border-gray-700"
+                key={user?.pfpUrl}
+                src={
+                  user.pfpUrl && user.pfpUrl.startsWith("http")
+                    ? user.pfpUrl
+                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                        user.username || "User"
+                      )}&background=6B46C1&color=fff&rounded=true`
+                }
+                alt={"User"}
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    user.username || "User"
+                  )}&background=6B46C1&color=fff&rounded=true`;
+                }}
+                referrerPolicy="no-referrer"
+                loading="lazy"
+                className="w-10 h-10 rounded-full border border-gray-200 dark:border-gray-700 object-cover"
               />
               <span className="text-sm font-medium text-gray-800 dark:text-gray-200">
                 {user.username}
@@ -145,7 +159,6 @@ export default function Header({
                 {user.pads.toFixed(2)} Likes
               </span>
             </div>
-
             <div className="flex items-center gap-2 px-3 py-2 rounded-md border border-purple-200 dark:border-purple-700">
               <Coins className="w-5 h-5 text-purple-600 dark:text-purple-300" />
               <span className="font-semibold text-md text-gray-800 dark:text-gray-100">

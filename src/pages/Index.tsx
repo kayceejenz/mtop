@@ -465,9 +465,9 @@ export default function Index() {
             className="w-20 mx-auto rounded-md mb-4 animate-bounce"
           />
           {/* <div className="text-6xl mb-4 animate-bounce">😎</div> */}
-          <p className="text-xl font-medium text-purple-700 dark:text-white">
+          {/* <p className="text-xl font-medium text-purple-700 dark:text-white">
             Loading Memedotfun...
-          </p>
+          </p> */}
         </div>
       </div>
     );
