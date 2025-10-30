@@ -71,6 +71,15 @@ export default function MemeSubmission({
         promptId: todayPrompt.id,
       });
 
+      const lastSubmissionDate = await firebaseService.getLastSubmissionDate(
+        currentUser.id
+      );
+      const today = new Date().toDateString();
+
+      if (lastSubmissionDate !== today) {
+        await firebaseService.updateUserTokens(currentUser.id, 5);
+      }
+
       await firebaseService.updateUserTokens(currentUser.id, 5);
 
       // Reset form

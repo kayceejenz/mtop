@@ -209,6 +209,22 @@ class FirebaseService {
     return docRef.id;
   }
 
+  async getLastSubmissionDate(userId: string): Promise<string | null> {
+    const q = query(
+      collection(db, "memes"),
+      where("creatorId", "==", userId),
+      orderBy("createdAt", "desc"),
+      limit(1)
+    );
+
+    const querySnapshot = await getDocs(q);
+    if (!querySnapshot.empty) {
+      const doc = querySnapshot.docs[0];
+      return doc.data().createdAt || null;
+    }
+    return null;
+  }
+
   async getMemesByPrompt(promptId: string): Promise<Meme[]> {
     const q = query(
       collection(db, "memes"),
