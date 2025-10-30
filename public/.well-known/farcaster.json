@@ -8,22 +8,18 @@
   "miniapp": {
     "version": "1",
     "name": "Memedotfun",
-    "iconUrl": "https://www.memedotfun.xyz/icon.png",
+    "iconUrl": "https://www.memedotfun.xyz/memewhite.jpg",
     "homeUrl": "https://www.memedotfun.xyz",
     "webhookUrl": "https://www.memedotfun.xyz/api/farcaster-webhook",
     "subtitle": "Share. Laugh. Earn.",
     "description": "Memedotfun lets you share memes, earn tokens, and compete for rewards. The fun never ends.",
-    "screenshotUrls": [
-      "https://www.memedotfun.xyz/screenshots/shot1.png",
-      "https://www.memedotfun.xyz/screenshots/shot2.png",
-      "https://www.memedotfun.xyz/screenshots/shot3.png"
-    ],
+    "screenshotUrls": ["https://www.memedotfun.xyz/memewhiteBG.jpg"],
     "primaryCategory": "social",
     "tags": ["memes", "fun", "rewards", "social", "earn"],
-    "heroImageUrl": "https://www.memedotfun.xyz/og.png",
+    "heroImageUrl": "https://www.memedotfun.xyz/memewhite.jpg",
     "tagline": "Share memes. Earn rewards.",
     "ogTitle": "MemeDotFun",
     "ogDescription": "Post memes, collect tokens, and climb the leaderboard on MemeDotFun.",
-    "ogImageUrl": "https://www.memedotfun.xyz/og.png"
+    "ogImageUrl": "https://www.memedotfun.xyz/memewhite.jpg"
   }
 }
