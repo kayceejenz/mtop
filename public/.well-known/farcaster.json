@@ -9,7 +9,7 @@
     "version": "1",
     "name": "Memedotfun",
     "iconUrl": "https://www.memedotfun.xyz/memewhite.jpg",
-    "homeUrl": "memedotfun.xyz",
+    "homeUrl": "https://www.memedotfun.xyz",
     "webhookUrl": "https://www.memedotfun.xyz/api/farcaster-webhook",
     "subtitle": "Share. Laugh. Earn.",
     "description": "Memedotfun lets you share memes, earn tokens, and compete for rewards. The fun never ends.",
