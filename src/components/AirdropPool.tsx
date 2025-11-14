@@ -37,7 +37,7 @@ export function AirdropPoolBanner() {
   useEffect(() => {
     // Calculate 90 days from now
     const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 90);
+    endDate.setDate(endDate.getDate() + 60);
 
     const updateCountdown = () => {
       const now = new Date();
