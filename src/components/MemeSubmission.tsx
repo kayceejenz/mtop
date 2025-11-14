@@ -81,9 +81,9 @@ export default function MemeSubmission({
         ? lastSubmissionIso.split("T")[0]
         : null;
 
-      if (lastSubmissionDate !== today) {
-        await firebaseService.updateUserTokens(currentUser.id, 5);
-      }
+      // if (lastSubmissionDate !== today) {
+      //   await firebaseService.updateUserTokens(currentUser.id, 5);
+      // }
       setCaption("");
       setImageFile(null);
       setImagePreview("");
