@@ -76,6 +76,8 @@ export default function MemeSubmission({
 
       onSubmit();
       onClose();
+      alert("Upload successful! Your meme is now live.");
+
       const lastSubmissionIso = await firebaseService.getLastSubmissionDate(
         currentUser.id
       );
@@ -86,9 +88,9 @@ export default function MemeSubmission({
         ? lastSubmissionIso.split("T")[0]
         : null;
 
-      if (lastSubmissionDate !== today) {
-        await firebaseService.updateUserTokens(currentUser.id, 5);
-      }
+      // if (lastSubmissionDate !== today) {
+      //   await firebaseService.updateUserTokens(currentUser.id, 5);
+      // }
     } catch (error) {
       console.error("Failed to submit meme:", error);
     } finally {

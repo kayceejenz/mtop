@@ -29,14 +29,16 @@ export default function DailyPrompt({ onSubmitMeme }: DailyPromptProps) {
         if (!todayPrompt) {
           // Create today's prompt if it doesn't exist
           const prompts = [
-            "AI Takes Over the Kitchen",
-            "When Crypto Goes to the Moon",
-            "NFTs in Real Life",
-            "Web3 vs Web2 Battle",
-            "Smart Contracts Gone Wrong",
-            "DeFi Farming Adventures",
-            "Metaverse Monday Blues",
-            "DAO Drama Llama",
+            "Moment when $BASE finally drops.",
+            "Trying to get into TBA (BaseApp)",
+            "When someone says Ethereum is the only chain that matters but you are a Base Maxi.",
+            "Explaining APY to someone who uses traditional banks.",
+            "When the Base Dev actually listens to community",
+            "When a normie asks you to onboard them.",
+            "When the gas fees are low but your heart rate is high",
+            "Me flexing my base experience like it's a skill",
+            "When you realise compounding base rewards is actually working",
+            "Trying to explain base to your non-crypto friend like..",
           ];
 
           const randomPrompt =
