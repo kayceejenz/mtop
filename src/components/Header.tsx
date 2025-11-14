@@ -1,6 +1,13 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, Coins, Loader2, Wallet, XCircle } from "lucide-react";
+import {
+  CheckCircle,
+  Coins,
+  Info,
+  Loader2,
+  Wallet,
+  XCircle,
+} from "lucide-react";
 import { ThemeToggle } from "./ThemeToggle";
 import { Alert, AlertDescription } from "./ui/alert";
 import { useTheme } from "@/hooks/use-theme";
@@ -19,8 +26,6 @@ export default function Header({
   buyPadsError,
   hash,
 }) {
-  console.log("xxx", user?.pfpUrl);
-
   return (
     <header className=" top-0 z-40 bg-purple-50 dark:bg-[#0b0b14] backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <div className="container mx-auto px-4 py-3">
@@ -33,9 +38,14 @@ export default function Header({
                 alt="Memedotfun"
                 className="w-10 rounded-md"
               />
-              <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-500 to-purple-500 dark:from-purple-300 dark:to-purple-300 bg-clip-text text-transparent">
-                Memedotfun
-              </h1>
+              <div>
+                <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-purple-500 to-purple-500 dark:from-purple-300 dark:to-purple-300 bg-clip-text text-transparent">
+                  Memedotfun
+                </h1>
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Earn like it's a joke
+                </p>
+              </div>
             </div>
             {/* <Badge variant="secondary" className="hidden sm:inline-flex">
               Beta
@@ -159,12 +169,13 @@ export default function Header({
                 {user.pads.toFixed(2)} Likes
               </span>
             </div>
-            <div className="flex items-center gap-2 px-3 py-2 rounded-md border border-purple-200 dark:border-purple-700">
+            {/* <div className="flex items-center gap-2 px-3 py-2 rounded-md border border-purple-200 dark:border-purple-700">
               <Coins className="w-5 h-5 text-purple-600 dark:text-purple-300" />
               <span className="font-semibold text-md text-gray-800 dark:text-gray-100">
                 {user.token ?? 0}
               </span>
-            </div>
+            </div> */}
+            <TokenTooltip user={user} />
           </div>
 
           {/* Buy Pads button */}
@@ -283,5 +294,53 @@ export default function Header({
         )}
       </div>
     </header>
+  );
+}
+
+import { useEffect, useRef, useState } from "react";
+
+function TokenTooltip({ user }) {
+  const [open, setOpen] = useState(false);
+  const wrapperRef = useRef(null);
+
+  // Close when clicking outside
+  useEffect(() => {
+    function handleClick(event) {
+      if (wrapperRef.current && !wrapperRef.current.contains(event.target)) {
+        setOpen(false);
+      }
+    }
+
+    document.addEventListener("click", handleClick);
+    return () => document.removeEventListener("click", handleClick);
+  }, []);
+
+  return (
+    <div ref={wrapperRef} className="relative w-fit">
+      <div
+        onClick={(e) => {
+          e.stopPropagation(); // prevents immediate close
+          setOpen(!open);
+        }}
+        className="flex items-center gap-2 px-3 py-2 rounded-md border 
+                   border-purple-200 dark:border-purple-700 cursor-pointer"
+      >
+        <Coins className="w-5 h-5 text-purple-600 dark:text-purple-300" />
+        <span className="font-semibold text-md text-gray-800 dark:text-gray-100">
+          {user.token ?? 0}
+        </span>
+        <Info className="w-4 h-4 text-gray-300" />
+      </div>
+
+      {open && (
+        <div
+          className="absolute -left-2 -translate-x-1/2 mt-1 
+                     bg-gray-800 dark:bg-gray-700 text-white 
+                     text-xs px-3 py-1 rounded shadow-lg whitespace-nowrap z-50"
+        >
+          These are points which will be <br /> converted into airdrop rewards.
+        </div>
+      )}
+    </div>
   );
 }
