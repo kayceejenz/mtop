@@ -70,7 +70,12 @@ export default function MemeSubmission({
         rewardPool: 0,
         promptId: todayPrompt.id,
       });
+      setCaption("");
+      setImageFile(null);
+      setImagePreview("");
 
+      onSubmit();
+      onClose();
       const lastSubmissionIso = await firebaseService.getLastSubmissionDate(
         currentUser.id
       );
@@ -81,18 +86,11 @@ export default function MemeSubmission({
         ? lastSubmissionIso.split("T")[0]
         : null;
 
-      // if (lastSubmissionDate !== today) {
-      //   await firebaseService.updateUserTokens(currentUser.id, 5);
-      // }
-      setCaption("");
-      setImageFile(null);
-      setImagePreview("");
-
-      onSubmit();
-      onClose();
+      if (lastSubmissionDate !== today) {
+        await firebaseService.updateUserTokens(currentUser.id, 5);
+      }
     } catch (error) {
       console.error("Failed to submit meme:", error);
-      alert("Failed to submit meme. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
