@@ -71,18 +71,19 @@ export default function MemeSubmission({
         promptId: todayPrompt.id,
       });
 
-      const lastSubmissionDate = await firebaseService.getLastSubmissionDate(
+      const lastSubmissionIso = await firebaseService.getLastSubmissionDate(
         currentUser.id
       );
-      const today = new Date().toDateString();
+
+      const today = new Date().toISOString().split("T")[0];
+
+      const lastSubmissionDate = lastSubmissionIso
+        ? lastSubmissionIso.split("T")[0]
+        : null;
 
       if (lastSubmissionDate !== today) {
         await firebaseService.updateUserTokens(currentUser.id, 5);
       }
-
-      await firebaseService.updateUserTokens(currentUser.id, 5);
-
-      // Reset form
       setCaption("");
       setImageFile(null);
       setImagePreview("");

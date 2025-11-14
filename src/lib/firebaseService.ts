@@ -2,6 +2,7 @@ import {
   addDoc,
   collection,
   doc,
+  DocumentData,
   getDoc,
   getDocs,
   increment,
@@ -9,6 +10,7 @@ import {
   onSnapshot,
   orderBy,
   query,
+  QuerySnapshot,
   serverTimestamp,
   setDoc,
   Timestamp,
@@ -210,19 +212,47 @@ class FirebaseService {
   }
 
   async getLastSubmissionDate(userId: string): Promise<string | null> {
-    const q = query(
-      collection(db, "memes"),
-      where("creatorId", "==", userId),
-      orderBy("createdAt", "desc"),
-      limit(1)
-    );
+    if (!userId) return null;
 
-    const querySnapshot = await getDocs(q);
-    if (!querySnapshot.empty) {
+    try {
+      const q = query(
+        collection(db, "memes"),
+        where("creatorId", "==", userId),
+        orderBy("createdAt", "desc"),
+        limit(1)
+      );
+
+      const querySnapshot: QuerySnapshot<DocumentData> = await getDocs(q);
+
+      if (querySnapshot.empty) {
+        return null;
+      }
+
       const doc = querySnapshot.docs[0];
-      return doc.data().createdAt || null;
+      const data = doc.data();
+      const timestamp = data.createdAt;
+
+      if (!timestamp) {
+        return null;
+      }
+
+      // Handle Firestore Timestamp → ISO string
+      if (timestamp.toDate) {
+        return timestamp.toDate().toISOString();
+      }
+
+      // Fallback: if already a string
+      if (typeof timestamp === "string") {
+        return timestamp;
+      }
+
+      // Invalid format
+      console.warn("Invalid createdAt format:", timestamp);
+      return null;
+    } catch (error) {
+      console.error("Error fetching last submission date:", error);
+      throw error; // or return null depending on your error strategy
     }
-    return null;
   }
 
   async getMemesByPrompt(promptId: string): Promise<Meme[]> {
