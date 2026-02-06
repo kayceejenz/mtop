@@ -27,7 +27,8 @@ export default function ShareModal({
   if (!meme || !currentUser) return null;
 
   const shareText = `Check out this hilarious meme: "${meme.caption}" 😂 Vote and earn rewards on MemeTop! 🎭🚀`;
-  const shareUrl = window.location.href;
+  //const shareUrl = window.location.href;
+  const shareUrl  = 'https://farcaster.xyz/miniapps/LVaSPw5phAb_/memedotfun';
 
   const handleShare = (platform: string) => {
     let url = "";
@@ -72,7 +73,7 @@ export default function ShareModal({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "MemeTop - Hilarious Meme!",
+          title: "MemeDotTop - Hilarious Meme!",
           text: shareText,
           url: shareUrl,
         });
