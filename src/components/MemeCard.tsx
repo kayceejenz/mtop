@@ -53,7 +53,7 @@ export default function MemeCard({
     if (hasVoted) return; // Prevent double voting
 
     // IMMEDIATE UI UPDATE - No waiting for Firebase
-    setHasVoted(true);
+    // setHasVoted(true);
     setOptimisticLikes((prev) => prev + 1);
     setConfetti(true);
     setTimeout(() => setConfetti(false), 1000);
