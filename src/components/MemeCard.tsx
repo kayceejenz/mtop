@@ -38,7 +38,7 @@ export default function MemeCard({
       try {
         const voted = await firebaseService.hasUserVoted(
           meme.id,
-          currentUser.id
+          currentUser.id,
         );
         setHasVoted(voted);
       } catch (error) {
@@ -150,7 +150,7 @@ export default function MemeCard({
             // className="w-full h-64 object-cover"
             className="w-full object-contain"
           />
-          {optimisticLikes >= 1000 && (
+          {optimisticLikes >= 500 && (
             <div className="absolute top-2 right-2">
               <Badge className="bg-gradient-to-r from-purple-500 to-indigo-500 text-white dark:from-purple-300 dark:to-indigo-400 dark:text-gray-900">
                 <Trophy className="w-3 h-3" />

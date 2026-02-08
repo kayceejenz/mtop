@@ -43,9 +43,8 @@ export default function DailyPrompt({ onSubmitMeme }: DailyPromptProps) {
 
           const randomPrompt =
             prompts[Math.floor(Math.random() * prompts.length)];
-          const promptId = await firebaseService.createDailyPrompt(
-            randomPrompt
-          );
+          const promptId =
+            await firebaseService.createDailyPrompt(randomPrompt);
           todayPrompt = await firebaseService.getTodayPrompt();
         }
 
@@ -58,7 +57,7 @@ export default function DailyPrompt({ onSubmitMeme }: DailyPromptProps) {
           prompt: "AI Takes Over the Kitchen",
           date: new Date().toISOString().split("T")[0],
           endsAt: Timestamp.fromDate(
-            new Date(Date.now() + 24 * 60 * 60 * 1000)
+            new Date(Date.now() + 24 * 60 * 60 * 1000),
           ),
           isActive: true,
           createdAt: Timestamp.fromDate(new Date()),
@@ -85,7 +84,7 @@ export default function DailyPrompt({ onSubmitMeme }: DailyPromptProps) {
       }
 
       const hours = Math.floor(
-        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
       );
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
@@ -198,17 +197,26 @@ export default function DailyPrompt({ onSubmitMeme }: DailyPromptProps) {
             </Button>
           </div>
 
-          {/* Tip */}
-          <div className="text-center text-xs text-muted-foreground">
-            💡 Tip: Memes that reach{" "}
-            <span className="font-semibold text-purple-600 dark:text-purple-300">
-              1000 Likes
-            </span>{" "}
-            earn creators{" "}
-            <span className="font-semibold text-purple-600 dark:text-purple-300">
-              60%
-            </span>{" "}
-            of the reward pool!
+          <div className="flex items-center flex-col">
+            {/* Tip */}
+            <div className=" text-xs text-muted-foreground">
+              💡 Tip: Memes that reach{" "}
+              <span className="font-semibold text-purple-600 dark:text-purple-300">
+                500 Likes
+              </span>{" "}
+              earn creators{" "}
+              <span className="font-semibold text-purple-600 dark:text-purple-300">
+                60%
+              </span>{" "}
+              of the reward pool!
+            </div>
+            <div className=" text-xs text-muted-foreground">
+              💡 Tip:{" "}
+              <span className="font-semibold text-purple-600 dark:text-purple-300">
+                3 Likes
+              </span>{" "}
+              is deducted per like action.{" "}
+            </div>
           </div>
         </CardContent>
       </Card>

@@ -7,7 +7,19 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Gift, Clock, Users, TrendingUp, X } from "lucide-react";
+import { Gift, Clock } from "lucide-react";
+import { getDatabase, ref, onValue } from "firebase/database";
+
+function getServerTimeOffset(callback: (offset: number) => void) {
+  const db = getDatabase();
+  const offsetRef = ref(db, ".info/serverTimeOffset");
+
+  return onValue(offsetRef, (snap) => {
+    callback(snap.val() || 0);
+  });
+}
+
+const AIRDROP_END_TIME = new Date("2026-04-30T23:59:59Z").getTime();
 
 // Banner Component
 export function AirdropPoolBanner() {
@@ -34,36 +46,70 @@ export function AirdropPoolBanner() {
     return () => clearInterval(interval);
   }, []);
 
+  // useEffect(() => {
+  //   // Calculate 90 days from now
+  //   const endDate = new Date();
+  //   endDate.setDate(endDate.getDate() + 60);
+
+  //   const updateCountdown = () => {
+  //     const now = new Date();
+  //     const difference = endDate.getTime() - now.getTime();
+
+  //     if (difference > 0) {
+  //       const days = Math.floor(difference / (1000 * 60 * 60 * 24));
+  //       const hours = Math.floor(
+  //         (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+  //       );
+  //       const minutes = Math.floor(
+  //         (difference % (1000 * 60 * 60)) / (1000 * 60)
+  //       );
+  //       const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+
+  //       setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+  //     } else {
+  //       setTimeLeft("Airdrop Ended");
+  //     }
+  //   };
+
+  //   updateCountdown();
+  //   const interval = setInterval(updateCountdown, 1000); // Update every second
+
+  //   return () => clearInterval(interval);
+  // }, []);
+
+  const [serverOffset, setServerOffset] = useState<number | null>(null);
+
   useEffect(() => {
-    // Calculate 90 days from now
-    const endDate = new Date();
-    endDate.setDate(endDate.getDate() + 60);
+    const unsubscribe = getServerTimeOffset(setServerOffset);
+    return () => unsubscribe();
+  }, []);
 
-    const updateCountdown = () => {
-      const now = new Date();
-      const difference = endDate.getTime() - now.getTime();
+  useEffect(() => {
+    if (serverOffset === null) return;
 
-      if (difference > 0) {
-        const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-        const hours = Math.floor(
-          (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-        );
-        const minutes = Math.floor(
-          (difference % (1000 * 60 * 60)) / (1000 * 60)
-        );
-        const seconds = Math.floor((difference % (1000 * 60)) / 1000);
+    let now = Date.now() + serverOffset;
 
-        setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
-      } else {
+    const interval = setInterval(() => {
+      now += 1000; // ⬅️ THIS is what was missing
+
+      const diff = AIRDROP_END_TIME - now;
+
+      if (diff <= 0) {
         setTimeLeft("Airdrop Ended");
+        clearInterval(interval);
+        return;
       }
-    };
 
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000); // Update every second
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+      const minutes = Math.floor((diff / (1000 * 60)) % 60);
+      const seconds = Math.floor((diff / 1000) % 60);
+
+      setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+    }, 1000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [serverOffset]);
 
   return (
     <>
@@ -193,10 +239,10 @@ export function AirdropPoolModal({
       if (difference > 0) {
         const days = Math.floor(difference / (1000 * 60 * 60 * 24));
         const hours = Math.floor(
-          (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+          (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
         );
         const minutes = Math.floor(
-          (difference % (1000 * 60 * 60)) / (1000 * 60)
+          (difference % (1000 * 60 * 60)) / (1000 * 60),
         );
 
         setTimeLeft(`${days}d ${hours}h ${minutes}m`);

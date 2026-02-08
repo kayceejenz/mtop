@@ -53,7 +53,7 @@ export default function MemeSubmission({
       // Upload image to Firebase Storage
       const imageUrl = await firebaseService.uploadMemeImage(
         imageFile,
-        currentUser.id
+        currentUser.id,
       );
 
       // Create meme in Firestore
@@ -79,7 +79,7 @@ export default function MemeSubmission({
       alert("Upload successful! Your meme is now live.");
 
       const lastSubmissionIso = await firebaseService.getLastSubmissionDate(
-        currentUser.id
+        currentUser.id,
       );
 
       const today = new Date().toISOString().split("T")[0];
@@ -200,7 +200,9 @@ export default function MemeSubmission({
             <ul className="text-xs text-purple-600 dark:text-purple-300 mt-1 space-y-1">
               <li>• Make it relatable to today’s prompt</li>
               <li>• Keep it funny and engaging</li>
-              <li>• Reach 1,000 Likes to earn 60% rewards!</li>
+              <li>
+                • Reach <b>500</b> Likes to earn 60% rewards!
+              </li>
             </ul>
           </div>
 

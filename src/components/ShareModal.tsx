@@ -35,17 +35,17 @@ export default function ShareModal({
     switch (platform) {
       case "twitter":
         url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(
-          shareText
+          shareText,
         )}&url=${encodeURIComponent(shareUrl)}`;
         break;
       case "warpcast":
         url = `https://warpcast.com/~/compose?text=${encodeURIComponent(
-          shareText + " " + shareUrl
+          shareText + " " + shareUrl,
         )}`;
         break;
       case "telegram":
         url = `https://t.me/share/url?url=${encodeURIComponent(
-          shareUrl
+          shareUrl,
         )}&text=${encodeURIComponent(shareText)}`;
         break;
       default:
@@ -72,7 +72,7 @@ export default function ShareModal({
     if (navigator.share) {
       try {
         await navigator.share({
-          title: "MemeTop - Hilarious Meme!",
+          title: "Memedotfun - Hilarious Meme!",
           text: shareText,
           url: shareUrl,
         });
