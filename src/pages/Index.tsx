@@ -229,6 +229,7 @@ export default function Index() {
     await handleRefresh(); // Refresh to get updated like counts
   };
 
+  /**
   useEffect(() => {
     const loadVoteStatus = async () => {
       if (!user || memes.length === 0) return;
@@ -253,6 +254,8 @@ export default function Index() {
 
     loadVoteStatus();
   }, [memes, user]);
+
+  **/
 
   // Subscribe to comments for all memes
   useEffect(() => {
