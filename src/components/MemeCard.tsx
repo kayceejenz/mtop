@@ -33,6 +33,7 @@ export default function MemeCard({
   const [hasVoted, setHasVoted] = useState(false);
   const [optimisticLikes, setOptimisticLikes] = useState(meme.likes);
 
+  /**
   useEffect(() => {
     const checkVoteStatus = async () => {
       try {
@@ -48,6 +49,8 @@ export default function MemeCard({
 
     checkVoteStatus();
   }, [meme.id, currentUser.id]);
+
+  **/
 
   const handleVote = async () => {
     if (hasVoted) return; // Prevent double voting
