@@ -314,7 +314,7 @@ export default function Index() {
 
       if (userBalance < totalCost) {
         setBuyPadsError(
-          `Insufficient USDC balance. You need at least ${totalCost} USDC.`
+          `Insufficient USDC balance. You need at least ${totalCost} USDC in your farcaster wallet.`
         );
         setBuyPadsStatus("error");
         farcasterService.triggerErrorHaptic();
