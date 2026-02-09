@@ -26,6 +26,12 @@ export default function Header({
   buyPadsError,
   hash,
 }) {
+  const [showError, setShowError] = useState(false);
+  useEffect(() => {
+    if (buyPadsStatus === "error") {
+      setShowError(true);
+    }
+  }, [buyPadsStatus]);
   return (
     <header className=" top-0 z-40 bg-purple-50 dark:bg-[#0b0b14] backdrop-blur-md border-b border-gray-200 dark:border-gray-800 shadow-sm">
       <div className="container mx-auto px-4 py-3">
@@ -75,12 +81,7 @@ export default function Header({
 
             {/* Buy Pads button */}
             <Button
-              onClick={
-                // !isConnected
-                //   ? () => connect({ connector: connectors[0] })
-                //   : handleBuyPads
-                handleBuyPads
-              }
+              onClick={handleBuyPads}
               size="sm"
               disabled={isSending || isConfirming}
               className={`transition-all duration-200 shadow-sm font-medium  hover:shadow-xl
@@ -88,8 +89,8 @@ export default function Header({
       buyPadsStatus === "success"
         ? "bg-green-600 hover:bg-green-700 text-white"
         : buyPadsStatus === "error"
-        ? "bg-red-600 hover:bg-red-700 text-white"
-        : "bg-gradient-to-r from-purple-500 dark:from-purple-300 to-indigo-500 dark:to-indigo-300 hover:from-purple-400 hover:to-indigo-400 text-white dark:text-gray-900"
+          ? "bg-red-600 hover:bg-red-700 text-white"
+          : "bg-gradient-to-r from-purple-500 dark:from-purple-300 to-indigo-500 dark:to-indigo-300 hover:from-purple-400 hover:to-indigo-400 text-white dark:text-gray-900"
     }
     ${isSending || isConfirming ? "cursor-not-allowed opacity-75" : ""}
   `}
@@ -106,14 +107,14 @@ export default function Header({
                   user.pfpUrl && user.pfpUrl.startsWith("http")
                     ? user.pfpUrl
                     : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                        user.username || "User"
+                        user.username || "User",
                       )}&background=6B46C1&color=fff&rounded=true`
                 }
                 alt={"User"}
                 onError={(e) => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                    user.username || "User"
+                    user.username || "User",
                   )}&background=6B46C1&color=fff&rounded=true`;
                 }}
                 referrerPolicy="no-referrer"
@@ -138,14 +139,14 @@ export default function Header({
                   user.pfpUrl && user.pfpUrl.startsWith("http")
                     ? user.pfpUrl
                     : `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                        user.username || "User"
+                        user.username || "User",
                       )}&background=6B46C1&color=fff&rounded=true`
                 }
                 alt={"User"}
                 onError={(e) => {
                   e.currentTarget.onerror = null;
                   e.currentTarget.src = `https://ui-avatars.com/api/?name=${encodeURIComponent(
-                    user.username || "User"
+                    user.username || "User",
                   )}&background=6B46C1&color=fff&rounded=true`;
                 }}
                 referrerPolicy="no-referrer"
@@ -192,8 +193,8 @@ export default function Header({
       buyPadsStatus === "success"
         ? "bg-green-600 hover:bg-green-700 text-white"
         : buyPadsStatus === "error"
-        ? "bg-red-600 hover:bg-red-700 text-white"
-        : "bg-gradient-to-r from-purple-500 dark:from-purple-300 to-indigo-500 dark:to-indigo-300 hover:from-purple-400 hover:to-indigo-400 text-white dark:text-gray-900"
+          ? "bg-red-600 hover:bg-red-700 text-white"
+          : "bg-gradient-to-r from-purple-500 dark:from-purple-300 to-indigo-500 dark:to-indigo-300 hover:from-purple-400 hover:to-indigo-400 text-white dark:text-gray-900"
     }
     ${isSending || isConfirming ? "cursor-not-allowed opacity-75" : ""}
   `}
@@ -256,6 +257,28 @@ export default function Header({
           </div>
         )}
 
+        <Dialog open={showError} onOpenChange={() => setShowError(false)}>
+          <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto bg-gradient-to-br from-purple-50 to-indigo-50 dark:from-[#0b0b14] dark:to-purple-900/20 border-2 border-red-300 dark:border-red-200 rounded-xl shadow-xl">
+            <DialogHeader>
+              <DialogTitle className="text-center flex items-center justify-center space-x-2 text-red-700 dark:text-red-200"></DialogTitle>
+            </DialogHeader>
+            {/* Transaction Status Alert */}
+            <div>
+              <Alert className="flex items-start gap-3 border border-red-300 bg-red-50 text-red-900 dark:border-red-700 dark:bg-red-900/20 dark:text-red-200 shadow-sm rounded-lg p-4">
+                <XCircle className="h-5 w-5 flex-shrink-0 !text-red-900 dark:!text-red-300" />
+                <div className="flex flex-col text-left">
+                  <AlertDescription className="text-sm font-medium mt-0.5">
+                    Oops! Something went wrong.
+                    <span className="block text-xs text-red-700 dark:text-red-300 ">
+                      {buyPadsError}
+                    </span>
+                  </AlertDescription>
+                </div>
+              </Alert>
+            </div>
+          </DialogContent>
+        </Dialog>
+
         {buyPadsStatus === "confirming" && (
           <div className="pt-4">
             <Alert className="flex items-start gap-3 border border-blue-300 bg-blue-50 text-blue-900 dark:border-blue-700 dark:bg-blue-900/20 dark:text-blue-200 shadow-sm rounded-lg p-4">
@@ -298,6 +321,7 @@ export default function Header({
 }
 
 import { useEffect, useRef, useState } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "./ui/dialog";
 
 function TokenTooltip({ user }) {
   const [open, setOpen] = useState(false);

@@ -30,86 +30,52 @@ export function AirdropPoolBanner() {
 
   // Simulate user growth (in a real app, this would come from your backend)
   useEffect(() => {
+    const updateCountdown = () => {
+      try {
+        const endTime = new Date(AIRDROP_END_TIME).getTime();
+        const now = Date.now(); // Use client time (Farcaster frames run in browser)
+        const diff = endTime - now;
+
+        if (diff <= 0) {
+          setTimeLeft("Airdrop Ended");
+          return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / (1000 * 60)) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
+      } catch (err) {
+        console.error("Countdown error:", err);
+        setTimeLeft("--:--:--");
+      }
+    };
+
+    // Update immediately
+    updateCountdown();
+
+    // Update every second
+    const intervalId = setInterval(updateCountdown, 1000);
+
+    return () => clearInterval(intervalId);
+  }, []);
+
+  // Simulate user growth
+  useEffect(() => {
     const interval = setInterval(() => {
       setUserCount((prev) => {
         const newCount = prev + Math.floor(Math.random() * 5);
-
-        // Increase pool by $100 for every 50 new users
         if (newCount % 50 === 0 && newCount > prev) {
           setPoolAmount((prevAmount) => prevAmount + 100);
         }
-
         return newCount;
       });
-    }, 30000); // Update every 30 seconds
+    }, 30000);
 
     return () => clearInterval(interval);
   }, []);
-
-  // useEffect(() => {
-  //   // Calculate 90 days from now
-  //   const endDate = new Date();
-  //   endDate.setDate(endDate.getDate() + 60);
-
-  //   const updateCountdown = () => {
-  //     const now = new Date();
-  //     const difference = endDate.getTime() - now.getTime();
-
-  //     if (difference > 0) {
-  //       const days = Math.floor(difference / (1000 * 60 * 60 * 24));
-  //       const hours = Math.floor(
-  //         (difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
-  //       );
-  //       const minutes = Math.floor(
-  //         (difference % (1000 * 60 * 60)) / (1000 * 60)
-  //       );
-  //       const seconds = Math.floor((difference % (1000 * 60)) / 1000);
-
-  //       setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
-  //     } else {
-  //       setTimeLeft("Airdrop Ended");
-  //     }
-  //   };
-
-  //   updateCountdown();
-  //   const interval = setInterval(updateCountdown, 1000); // Update every second
-
-  //   return () => clearInterval(interval);
-  // }, []);
-
-  const [serverOffset, setServerOffset] = useState<number | null>(null);
-
-  useEffect(() => {
-    const unsubscribe = getServerTimeOffset(setServerOffset);
-    return () => unsubscribe();
-  }, []);
-
-  useEffect(() => {
-    if (serverOffset === null) return;
-
-    let now = Date.now() + serverOffset;
-
-    const interval = setInterval(() => {
-      now += 1000; // ⬅️ THIS is what was missing
-
-      const diff = AIRDROP_END_TIME - now;
-
-      if (diff <= 0) {
-        setTimeLeft("Airdrop Ended");
-        clearInterval(interval);
-        return;
-      }
-
-      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-      const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-      const minutes = Math.floor((diff / (1000 * 60)) % 60);
-      const seconds = Math.floor((diff / 1000) % 60);
-
-      setTimeLeft(`${days}d ${hours}h ${minutes}m ${seconds}s`);
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [serverOffset]);
 
   return (
     <>

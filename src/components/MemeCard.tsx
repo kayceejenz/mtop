@@ -49,41 +49,85 @@ export default function MemeCard({
     checkVoteStatus();
   }, [meme.id, currentUser.id]);
 
+  // const handleVote = async () => {
+  //   if (hasVoted) return; // Prevent double voting
+
+  //   // IMMEDIATE UI UPDATE - No waiting for Firebase
+  //   setHasVoted(true);
+  //   setOptimisticLikes((prev) => prev + 1);
+  //   setConfetti(true);
+  //   setTimeout(() => setConfetti(false), 1000);
+
+  //   // Call Firebase in background - don't wait for it
+  //   setIsVoting(true);
+
+  //   try {
+  //     const pads = await firebaseService.getPads(currentUser.id);
+
+  //     if (pads + voteWeight < 0) {
+  //       onInsufficientPad();
+  //       // Don't revert UI - let the user see their like
+  //       return;
+  //     }
+
+  //     // Fire and forget - don't await, just trigger
+  //     firebaseService
+  //       .voteMeme(meme.id, currentUser.id)
+  //       .then((success) => {
+  //         if (success) {
+  //           firebaseService.updateUserTokens(currentUser.id, 10);
+  //           onVote(); // Notify parent for data refresh
+  //         } else {
+  //           console.warn("Vote failed on server, but UI remains updated");
+  //         }
+  //       })
+  //       .catch((error) => {
+  //         console.error("Background vote failed:", error);
+  //         // Don't revert UI - keep the optimistic update
+  //       })
+  //       .finally(() => {
+  //         setIsVoting(false);
+  //       });
+  //   } catch (error) {
+  //     console.error("Failed to check pads:", error);
+  //     setIsVoting(false);
+  //     // Still don't revert UI - optimistic update stays
+  //   }
+  // };
   const handleVote = async () => {
-    if (hasVoted) return; // Prevent double voting
+    if (hasVoted || isVoting) return;
 
-    // IMMEDIATE UI UPDATE - No waiting for Firebase
-    setHasVoted(true);
-    setOptimisticLikes((prev) => prev + 1);
-    setConfetti(true);
-    setTimeout(() => setConfetti(false), 1000);
-
-    // Call Firebase in background - don't wait for it
     setIsVoting(true);
 
     try {
       const pads = await firebaseService.getPads(currentUser.id);
 
+      // 🚫 HARD BLOCK — do NOT allow optimistic update
       if (pads + voteWeight < 0) {
         onInsufficientPad();
-        // Don't revert UI - let the user see their like
+        setIsVoting(false);
         return;
       }
 
-      // Fire and forget - don't await, just trigger
+      // ✅ SAFE optimistic update
+      setHasVoted(true);
+      setOptimisticLikes((prev) => prev + 1);
+      setConfetti(true);
+      setTimeout(() => setConfetti(false), 1000);
+
+      // 🔥 Fire-and-forget
       firebaseService
         .voteMeme(meme.id, currentUser.id)
         .then((success) => {
           if (success) {
             firebaseService.updateUserTokens(currentUser.id, 10);
-            onVote(); // Notify parent for data refresh
+            onVote();
           } else {
-            console.warn("Vote failed on server, but UI remains updated");
+            console.warn("Vote failed on server, UI kept optimistic");
           }
         })
         .catch((error) => {
           console.error("Background vote failed:", error);
-          // Don't revert UI - keep the optimistic update
         })
         .finally(() => {
           setIsVoting(false);
@@ -91,7 +135,6 @@ export default function MemeCard({
     } catch (error) {
       console.error("Failed to check pads:", error);
       setIsVoting(false);
-      // Still don't revert UI - optimistic update stays
     }
   };
 
