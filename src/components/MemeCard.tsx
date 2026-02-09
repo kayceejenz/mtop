@@ -33,6 +33,7 @@ export default function MemeCard({
   const [hasVoted, setHasVoted] = useState(false);
   const [optimisticLikes, setOptimisticLikes] = useState(meme.likes);
 
+  /**
   useEffect(() => {
     const checkVoteStatus = async () => {
       try {
@@ -94,6 +95,8 @@ export default function MemeCard({
   //     // Still don't revert UI - optimistic update stays
   //   }
   // };
+  **/
+
   const handleVote = async () => {
     if (hasVoted || isVoting) return;
 

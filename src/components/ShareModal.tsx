@@ -26,8 +26,10 @@ export default function ShareModal({
 }: ShareModalProps) {
   if (!meme || !currentUser) return null;
 
-  const shareText = `Check out this hilarious meme: "${meme.caption}" 😂 Vote and earn rewards on MemeTop! 🎭🚀`;
-  const shareUrl = window.location.href;
+  const shareText = `Check out this hilarious meme: "${meme.caption}" 😂 Vote and earn rewards on MemeDotFun! 🎭🚀`;
+  //const shareUrl = window.location.href;
+  const shareUrl = 'https://farcaster.xyz/miniapps/LVaSPw5phAb_/memedotfun'
+  
 
   const handleShare = (platform: string) => {
     let url = "";
