@@ -19,7 +19,7 @@ function getServerTimeOffset(callback: (offset: number) => void) {
   });
 }
 
-const AIRDROP_END_TIME = new Date("2026-04-30T23:59:59Z").getTime();
+const AIRDROP_END_TIME = new Date("2026-04-11T23:59:59Z").getTime();
 
 // Banner Component
 export function AirdropPoolBanner() {
