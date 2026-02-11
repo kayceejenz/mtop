@@ -202,7 +202,7 @@ export default function DailyPrompt({ onSubmitMeme }: DailyPromptProps) {
             <div className=" text-xs text-muted-foreground">
               💡 Tip: Memes that reach{" "}
               <span className="font-semibold text-purple-600 dark:text-purple-300">
-                500 Likes
+                100 Likes
               </span>{" "}
               earn creators{" "}
               <span className="font-semibold text-purple-600 dark:text-purple-300">

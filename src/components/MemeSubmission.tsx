@@ -201,7 +201,7 @@ export default function MemeSubmission({
               <li>• Make it relatable to today’s prompt</li>
               <li>• Keep it funny and engaging</li>
               <li>
-                • Reach <b>500</b> Likes to earn 60% rewards!
+                • Reach <b>100</b> Likes to earn 60% rewards!
               </li>
             </ul>
           </div>
