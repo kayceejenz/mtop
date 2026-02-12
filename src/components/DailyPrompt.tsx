@@ -30,15 +30,15 @@ export default function DailyPrompt({ onSubmitMeme }: DailyPromptProps) {
           // Create today's prompt if it doesn't exist
           const prompts = [
             "Moment when $BASE finally drops.",
-           // "Trying to get into TBA (BaseApp)",
-           // "When someone says Ethereum is the only chain that matters but you are a Base Maxi.",
-          //  "Explaining APY to someone who uses traditional banks.",
-            //"When the Base Dev actually listens to community",
-           // "When a normie asks you to onboard them.",
-           // "When the gas fees are low but your heart rate is high",
-          //  "Me flexing my base experience like it's a skill",
-            //"When you realise compounding base rewards is actually working",
-            //"Trying to explain base to your non-crypto friend like..",
+           "Trying to get into TBA (BaseApp)",
+           "When someone says Ethereum is the only chain that matters but you are a Base Maxi.",
+          "Explaining APY to someone who uses traditional banks.",
+            "When the Base Dev actually listens to community",
+            "When a normie asks you to onboard them.",
+           "When the gas fees are low but your heart rate is high",
+            "Me flexing my base experience like it's a skill",
+            "When you realise compounding base rewards is actually working",
+            "Trying to explain base to your non-crypto friend like..",
           ];
 
           const randomPrompt =
@@ -57,7 +57,7 @@ export default function DailyPrompt({ onSubmitMeme }: DailyPromptProps) {
           prompt: "AI Takes Over the Kitchen",
           date: new Date().toISOString().split("T")[0],
           endsAt: Timestamp.fromDate(
-            new Date(Date.now() + 48 * 60 * 60 * 1000),
+            new Date(Date.now() + 24 * 60 * 60 * 1000),
           ),
           isActive: true,
           createdAt: Timestamp.fromDate(new Date()),
@@ -84,7 +84,7 @@ export default function DailyPrompt({ onSubmitMeme }: DailyPromptProps) {
       }
 
       const hours = Math.floor(
-        (distance % (1000 * 60 * 60 * 48)) / (1000 * 60 * 60),
+        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
       );
       const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((distance % (1000 * 60)) / 1000);
